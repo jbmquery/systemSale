@@ -1,3 +1,4 @@
+//src/components/Siderbar.jsx
 import {
   FaBoxOpen,
   FaCashRegister,

@@ -1,3 +1,4 @@
+//src/pages/InventarioProductoPage.jsx
 import { useState } from "react";
 import Navbar from "../components/Navbar";
 import Sidebar from "../components/Sidebar";
@@ -15,7 +16,8 @@ function InventarioProductoPage() {
 
   const productos = [
     {
-      codigo: "775012345678",
+      Id:"sdfg74b5d56w8",
+      codBar: "775012345678",
       nombre: "Leche Gloria 1L",
       categoria: "Lácteos",
       marca: "Gloria",
@@ -26,9 +28,12 @@ function InventarioProductoPage() {
       minimo: 5,
       lote: "L001",
       vencimiento: "25/03/2026",
+      nomProveedor: "Adolfo Gutierrez SAC",
+      fecRegitro: "16/03/2026"
     },
     {
-      codigo: "775098765432",
+      Id:"sdff5g7t57re",
+      codBar: "775098765432",
       nombre: "Yogurt Fresa",
       categoria: "Lácteos",
       marca: "Laive",
@@ -39,6 +44,8 @@ function InventarioProductoPage() {
       minimo: 5,
       lote: "L002",
       vencimiento: "20/03/2026",
+      nomProveedor: "JuanquinMaquiz EIRL",
+      fecRegitro: "16/03/2026"
     },
   ];
 
@@ -174,7 +181,7 @@ function InventarioProductoPage() {
                   <tbody className="text-center">
                     {filtrados.map((p, i) => (
                       <tr key={i} className="hover:bg-purple-50 transition">
-                        <td className="py-2 px-2">{p.codigo}</td>
+                        <td className="py-2 px-2">{p.codBar}</td>
 
                         <td className="font-semibold text-purple-800 text-left px-2">
                           {p.nombre}
