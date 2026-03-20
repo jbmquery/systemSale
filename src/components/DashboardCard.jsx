@@ -1,3 +1,4 @@
+//src/components/DashboardCard.jsx
 function DashboardCard({ titulo, valor, color }) {
   return (
     <div className={`rounded-2xl p-5 shadow-md ${color}`}>

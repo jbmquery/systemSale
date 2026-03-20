@@ -13,7 +13,9 @@ import { NavLink } from "react-router-dom";
 function Sidebar({ abierto, cerrar }) {
   const menuClass = ({ isActive }) =>
     `flex items-center gap-3 cursor-pointer transition px-3 py-2 rounded-xl ${
-      isActive ? "bg-gradient-to-r from-lime-200 to-cyan-300 hover:bg-gradient-to-r hover:from-cyan-300 hover:to-lime-200 text-fuchsia-600 font-bold" : "hover:text-cyan-300"
+      isActive
+        ? "bg-gradient-to-r from-lime-200 to-cyan-300 hover:bg-gradient-to-r hover:from-cyan-300 hover:to-lime-200 text-fuchsia-600 font-bold"
+        : "hover:text-cyan-300"
     }`;
 
   return (
@@ -53,7 +55,11 @@ function Sidebar({ abierto, cerrar }) {
           </li>
 
           <li>
-            <NavLink to="/inventario-producto" className={menuClass} onClick={cerrar}>
+            <NavLink
+              to="/inventario/productos"
+              className={menuClass}
+              onClick={cerrar}
+            >
               <FaBoxOpen />
               Inventario
             </NavLink>
