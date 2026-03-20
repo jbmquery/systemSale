@@ -75,7 +75,7 @@ function InventarioProductosPage() {
             </button>
             <button className="btn rounded-full bg-fuchsia-500 text-white border-none hover:bg-fuchsia-600 px-4 md:px-6 flex gap-2 items-center cursor-pointer shadow-md">
               <FaPlus />
-              <span className="font-bold hidden md:inline">Nuevo producto</span>
+              <span className="font-bold hidden md:inline">Nueva producto</span>
             </button>
           </div>
         </div>
