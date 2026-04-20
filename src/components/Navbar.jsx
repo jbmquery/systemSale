@@ -15,7 +15,7 @@ function Navbar({ abrirSidebar }) {
         </button>
 
         <h1 className="text-xl font-bold text-purple-800">
-          Lupita Store
+          Salomé Store
         </h1>
 
       </div>

@@ -19,6 +19,7 @@ function DashboardPage() {
         <Navbar abrirSidebar={() => setSidebarAbierto(true)} />
 
         <div className="p-6">
+          {/* ENCABEZADO*/}
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
             <div>
               <h2 className="text-3xl font-bold text-purple-800">

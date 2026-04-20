@@ -51,7 +51,7 @@ const [busqueda, setBusqueda] = useState("");
               <thead className="text-center">
                 <tr className="text-purple-800 bg-purple-50">
                   <th className="py-4 px-2">Categoria</th>
-                  <th className="py-4 px-2">Producto</th>
+                  <th className="py-4 px-2">Estado</th>
                 </tr>
               </thead>
 

@@ -1,14 +1,18 @@
 import { initializeApp } from "firebase/app";
+import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
-  apiKey: "TU_API_KEY",
-  authDomain: "TU_AUTH_DOMAIN",
-  projectId: "TU_PROJECT_ID",
-  storageBucket: "TU_STORAGE_BUCKET",
-  messagingSenderId: "TU_MESSAGING_SENDER_ID",
-  appId: "TU_APP_ID"
+  apiKey: "AIzaSyA4FKEyc1SRVNLlDOPkzkznP14Fp-V6PC0",
+  authDomain: "sysminimarket-1dd05.firebaseapp.com",
+  projectId: "sysminimarket-1dd05",
+  storageBucket: "sysminimarket-1dd05.firebasestorage.app",
+  messagingSenderId: "1067722586422",
+  appId: "1:1067722586422:web:38516ea7f79891d8f41b97",
 };
 
 const app = initializeApp(firebaseConfig);
+
+// 🔥 ESTA LÍNEA FALTABA
+export const db = getFirestore(app);
 
 export default app;

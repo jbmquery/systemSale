@@ -1,12 +1,14 @@
+//src/App.jsx
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import LoginPage from "./pages/LoginPage";
 import DashboardPage from "./pages/DashboardPage";
 import InventarioLayout from "./pages/InventarioLayout";
-import InventarioProductosPage from "./pages/InventarioProductosPage";
-import InventarioCategoriasPage from "./pages/InventarioCategoriasPage";
-import InventarioMarcasPage from "./pages/InventarioMarcasPage";
-import InventarioUnidadesPage from "./pages/InventarioUnidadesPage";
+import InventarioProductosPage from "./components/inventario/InventarioProductosPage";
+import InventarioCategoriasPage from "./components/inventario/InventarioCategoriasPage";
+import InventarioMarcasPage from "./components/inventario/InventarioMarcasPage";
+import InventarioUnidadesPage from "./components/inventario/InventarioUnidadesPage";
+import PuntoVentaPage from "./pages/PuntoVentaPage";
 
 function App() {
   return (
@@ -21,6 +23,7 @@ function App() {
           <Route path="marcas" element={<InventarioMarcasPage />} />
           <Route path="unidades" element={<InventarioUnidadesPage />} />
         </Route>
+        <Route path="/punto-venta" element={<PuntoVentaPage />} />
       </Routes>
     </BrowserRouter>
   );
