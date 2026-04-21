@@ -44,7 +44,7 @@ const [busqueda, setBusqueda] = useState("");
             </button>
           </div>
         </div>
-
+        {/* TABLA */}
         <div className="bg-white rounded-2xl shadow-md overflow-hidden">
           <div className="overflow-x-auto">
             <table className="table text-sm w-full">

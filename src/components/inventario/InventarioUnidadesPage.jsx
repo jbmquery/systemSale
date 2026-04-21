@@ -114,31 +114,37 @@ function InventarioUnidadesPage() {
 
           <button
             onClick={abrirCrear}
-            className="btn bg-fuchsia-500 text-white hover:bg-fuchsia-600"
+            className="btn rounded-full bg-fuchsia-500 text-white border-none hover:bg-fuchsia-600 px-4 md:px-6 flex gap-2 items-center cursor-pointer shadow-md"
           >
-            <FaPlus /> Nueva Unidad
+            <FaPlus />
+            <span className="font-bold hidden md:inline">Nueva Unidad</span>
           </button>
         </div>
 
-        <table className="table w-full text-center">
-          <thead>
-            <tr>
-              <th>Simbolo</th>
-              <th>Unidad</th>
-              <th>Estado</th>
-            </tr>
-          </thead>
+        {/* TABLA */}
+        <div className="bg-white rounded-2xl shadow-md overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="table text-sm w-full">
+              <thead className="text-center">
+                <tr className="text-purple-800 bg-purple-50">
+                  <th>Simbolo</th>
+                  <th>Unidad</th>
+                  <th>Estado</th>
+                </tr>
+              </thead>
 
-          <tbody>
+              <tbody className="text-center">
             {filtrados.map((p) => (
-              <tr key={p.id} onClick={() => abrirEditar(p)}>
-                <td>{p.simbolo}</td>
-                <td>{p.unidad}</td>
-                <td>{p.estado ? "Activo" : "Inactivo"}</td>
+              <tr key={p.id} className="hover:bg-purple-50 transition" onClick={() => abrirEditar(p)}>
+                <td className="font-semibold text-purple-800 py-2 px-2">{p.simbolo}</td>
+                <td className="py-2 px-2">{p.unidad}</td>
+                <td className="py-2 px-2">{p.estado ? "Activo" : "Inactivo"}</td>
               </tr>
             ))}
-          </tbody>
-        </table>
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
 
       <UnidadesModal
