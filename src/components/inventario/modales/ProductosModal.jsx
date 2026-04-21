@@ -1,14 +1,10 @@
 import { useEffect, useState } from "react";
 import { IoMdClose } from "react-icons/io";
 import { db } from "../../../firebase/config";
+import { FaBarcode } from "react-icons/fa6";
 import { collection, onSnapshot } from "firebase/firestore";
 
-import {
-  getStorage,
-  ref,
-  uploadBytes,
-  getDownloadURL,
-} from "firebase/storage";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 function ProductosModal({
   abierto,
@@ -41,15 +37,15 @@ function ProductosModal({
   // 🔥 SELECTS EN TIEMPO REAL
   useEffect(() => {
     const unsub1 = onSnapshot(collection(db, "categorias"), (snap) => {
-      setCategorias(snap.docs.map(d => d.data()).filter(c => c.estado));
+      setCategorias(snap.docs.map((d) => d.data()).filter((c) => c.estado));
     });
 
     const unsub2 = onSnapshot(collection(db, "marcas"), (snap) => {
-      setMarcas(snap.docs.map(d => d.data()).filter(m => m.estado));
+      setMarcas(snap.docs.map((d) => d.data()).filter((m) => m.estado));
     });
 
     const unsub3 = onSnapshot(collection(db, "unidades"), (snap) => {
-      setUnidades(snap.docs.map(d => d.data()).filter(u => u.estado));
+      setUnidades(snap.docs.map((d) => d.data()).filter((u) => u.estado));
     });
 
     return () => {
@@ -160,74 +156,183 @@ function ProductosModal({
 
         {/* BODY */}
         <div className="p-5 space-y-5 overflow-y-auto">
-
           {/* CODIGO */}
-          <div>
-            <label className="text-sm font-semibold text-purple-700">Código</label>
-            <input
-              name="codigo"
-              value={form.codigo}
-              onChange={handleChange}
-              className="input input-bordered w-full mt-1 rounded-2xl focus:ring-2 focus:ring-fuchsia-400"
-            />
+          <div className="flex flex-col gap-1">
+            <label className="text-sm font-semibold text-purple-700">
+              Codigo
+            </label>
+            <div className="flex flex-row">
+              <button className="btn bg-purple-800 text-white rounded-none rounded-l-2xl hover:bg-purple-900">
+                <FaBarcode />
+              </button>
+              <input
+                name="codigo"
+                placeholder="123456789"
+                value={form.codigo}
+                onChange={handleChange}
+                className="input input-bordered w-full rounded-none rounded-r-2xl"
+              />
+            </div>
           </div>
 
           {/* PRODUCTO */}
-          <div>
-            <label className="text-sm font-semibold text-purple-700">Producto</label>
+          <div className="flex flex-col gap-1">
+            <label className="text-sm font-semibold text-purple-700">
+              Producto
+            </label>
             <input
               name="producto"
               value={form.producto}
+              placeholder="Ejm: Guantes"
               onChange={handleChange}
-              className="input input-bordered w-full mt-1 rounded-2xl"
+              className="input input-bordered w-full rounded-2xl"
             />
           </div>
 
           {/* SELECTS */}
-          <div className="grid grid-cols-1 gap-4">
-            <select name="categoria" value={form.categoria} onChange={handleChange} className="select select-bordered rounded-2xl">
-              <option value="">Categoría</option>
-              {categorias.map((c, i) => (
-                <option key={i}>{c.categoria}</option>
-              ))}
-            </select>
+          <div className="grid grid-cols-3 gap-1">
+            <div className="flex flex-col gap-1">
+              <label className="text-sm font-semibold text-purple-700">
+                Categorías
+              </label>
+              <select
+                name="categoria"
+                value={form.categoria}
+                onChange={handleChange}
+                className="select select-bordered rounded-2xl"
+              >
+                <option value="">Categoría</option>
+                {categorias.map((c, i) => (
+                  <option key={i}>{c.categoria}</option>
+                ))}
+              </select>
+            </div>
 
-            <select name="marca" value={form.marca} onChange={handleChange} className="select select-bordered rounded-2xl">
-              <option value="">Marca</option>
-              {marcas.map((m, i) => (
-                <option key={i}>{m.marca}</option>
-              ))}
-            </select>
+            <div className="flex flex-col gap-1">
+              <label className="text-sm font-semibold text-purple-700">
+                Marcas
+              </label>
+              <select
+                name="marca"
+                value={form.marca}
+                onChange={handleChange}
+                className="select select-bordered rounded-2xl"
+              >
+                <option value="">Marca</option>
+                {marcas.map((m, i) => (
+                  <option key={i}>{m.marca}</option>
+                ))}
+              </select>
+            </div>
 
-            <select name="unidad" value={form.unidad} onChange={handleChange} className="select select-bordered rounded-2xl">
-              <option value="">Unidad</option>
-              {unidades.map((u, i) => (
-                <option key={i}>{u.unidad}</option>
-              ))}
-            </select>
+            <div className="flex flex-col gap-1">
+              <label className="text-sm font-semibold text-purple-700">
+                Unidades
+              </label>
+              <select
+                name="unidad"
+                value={form.unidad}
+                onChange={handleChange}
+                className="select select-bordered rounded-2xl"
+              >
+                <option value="">Unidad</option>
+                {unidades.map((u, i) => (
+                  <option key={i}>{u.unidad}</option>
+                ))}
+              </select>
+            </div>
           </div>
 
-          {/* PRECIOS */}
-          <div className="grid grid-cols-2 gap-3">
-            <input name="compra" placeholder="Compra" onChange={handleChange} value={form.compra} className="input input-bordered rounded-2xl" />
-            <input name="venta" placeholder="Venta" onChange={handleChange} value={form.venta} className="input input-bordered rounded-2xl" />
+          {/* PRECIOS y STOCK*/}
+          <div className="grid grid-cols-4 gap-1">
+            <div className="flex flex-col gap-1">
+              <label className="text-sm font-semibold text-purple-700">
+                S/ Compra
+              </label>
+              <input
+                name="compra"
+                placeholder="0.00"
+                onChange={handleChange}
+                value={form.compra}
+                className="input input-bordered rounded-2xl"
+              />
+            </div>
+            <div className="flex flex-col gap-1">
+              <label className="text-sm font-semibold text-purple-700">
+                S/ Venta
+              </label>
+              <input
+                name="venta"
+                placeholder="0.00"
+                onChange={handleChange}
+                value={form.venta}
+                className="input input-bordered rounded-2xl"
+              />
+            </div>
+            <div className="flex flex-col gap-1">
+              <label className="text-sm font-semibold text-purple-700">
+                Stock
+              </label>
+              <input
+                name="stock"
+                placeholder="0"
+                onChange={handleChange}
+                value={form.stock}
+                className="input input-bordered rounded-2xl"
+              />
+            </div>
+            <div className="flex flex-col gap-1">
+              <label className="text-sm font-semibold text-purple-700">
+                Lote
+              </label>
+              <input
+                name="lote"
+                placeholder="L001"
+                onChange={handleChange}
+                value={form.lote}
+                className="input input-bordered rounded-2xl"
+              />
+            </div>
           </div>
 
-          {/* STOCK */}
-          <div className="grid grid-cols-2 gap-3">
-            <input name="stock" placeholder="Stock" onChange={handleChange} value={form.stock} className="input input-bordered rounded-2xl" />
-            <input name="lote" placeholder="Lote" onChange={handleChange} value={form.lote} className="input input-bordered rounded-2xl" />
-          </div>
+          {/* FECHA Y ESTADO*/}
+          <div className="grid grid-cols-2 gap-1">
+            {/* FECHA */}
+            <div className="flex flex-col gap-1">
+              <label className="text-sm font-semibold text-purple-700">
+                Fecha Vencimiento
+              </label>
+              <input
+                type="date"
+                name="vence"
+                value={form.vence}
+                onChange={handleChange}
+                className="input input-bordered w-full rounded-2xl"
+              />
+            </div>
+            {/* ESTADO */}
+            <div className="flex flex-col gap-1">
+              <label className="text-sm font-semibold text-purple-700">
+                Estado
+              </label>
 
-          {/* FECHA */}
-          <div>
-            <label className="text-sm text-purple-700">Vencimiento</label>
-            <input type="date" name="vence" value={form.vence} onChange={handleChange} className="input input-bordered w-full rounded-2xl" />
+              <select
+                name="estado"
+                value={form.estado}
+                onChange={handleChange}
+                className="select select-bordered rounded-2xl"
+              >
+                <option>Activo</option>
+                <option>Inactivo</option>
+              </select>
+            </div>
           </div>
 
           {/* IMAGEN */}
-          <div>
-            <label className="text-sm text-purple-700">Imagen</label>
+          <div className="flex flex-col gap-1">
+            <label className="text-sm font-semibold text-purple-700">
+              Imagen
+            </label>
             <input
               type="file"
               onChange={(e) => setFile(e.target.files[0])}
@@ -238,28 +343,13 @@ function ProductosModal({
               <img src={form.imagen} className="w-24 mt-3 rounded-xl shadow" />
             )}
           </div>
-
-          {/* ESTADO */}
-          <div className="flex items-center justify-between bg-purple-50 px-4 py-3 rounded-2xl">
-            <span className="text-sm font-semibold text-purple-700">Estado</span>
-
-            <select
-              name="estado"
-              value={form.estado}
-              onChange={handleChange}
-              className="select select-sm rounded-xl"
-            >
-              <option>Activo</option>
-              <option>Inactivo</option>
-            </select>
-          </div>
         </div>
 
         {/* FOOTER */}
         <div className="p-5 border-t flex gap-3">
           <button
             onClick={handleSubmit}
-            className="btn flex-1 rounded-xl bg-fuchsia-500 text-white hover:bg-fuchsia-600"
+            className="btn flex-1 rounded-xl bg-fuchsia-500 text-white border-none hover:bg-fuchsia-600 shadow-md transition"
           >
             Guardar
           </button>

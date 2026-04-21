@@ -96,7 +96,7 @@ function InventarioProductosPage() {
 
           <button
             onClick={abrirCrear}
-            className="btn rounded-full bg-fuchsia-500 text-white"
+            className="btn rounded-full bg-fuchsia-500 text-white border-none hover:bg-fuchsia-600 px-4 md:px-6 flex gap-2 items-center cursor-pointer shadow-md"
           >
             <FaPlus />
             <span className="hidden md:inline">Nuevo producto</span>
