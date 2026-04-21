@@ -1,4 +1,3 @@
-//src/components/inventario/modales/UnidadesModal.jsx
 import { useEffect, useState } from "react";
 import { IoMdClose } from "react-icons/io";
 
@@ -48,55 +47,99 @@ function UnidadesModal({
 
   return (
     <>
+      {/* OVERLAY */}
       <div
-        className={`fixed inset-0 bg-black/30 ${
-          abierto ? "visible" : "invisible"
+        className={`fixed inset-0 bg-black/30 backdrop-blur-sm z-40 transition-all duration-300 ${
+          abierto ? "opacity-100 visible" : "opacity-0 invisible"
         }`}
         onClick={cerrar}
       />
 
+      {/* PANEL */}
       <div
-        className={`fixed right-0 top-0 h-full w-[400px] bg-white ${
+        className={`fixed top-0 right-0 h-full w-full sm:w-[420px] bg-white z-50 shadow-2xl transform transition-all duration-300 ${
           abierto ? "translate-x-0" : "translate-x-full"
-        } transition`}
+        }`}
       >
-        <div className="flex justify-between p-4 border-b">
-          <h2>{modo === "editar" ? "Editar Unidad" : "Nueva Unidad"}</h2>
-          <button onClick={cerrar}>
-            <IoMdClose />
+        {/* HEADER */}
+        <div className="flex justify-between items-center p-5 border-b">
+          <div>
+            <h2 className="text-xl font-bold text-purple-800">
+              {modo === "editar" ? "Editar Unidad" : "Nueva Unidad"}
+            </h2>
+            <p className="text-xs text-purple-500">
+              {modo === "editar"
+                ? "Modifica la información de la unidad"
+                : "Registra una nueva unidad"}
+            </p>
+          </div>
+
+          <button
+            onClick={cerrar}
+            className="p-2 rounded-full hover:bg-purple-100 transition"
+          >
+            <IoMdClose className="text-2xl text-purple-600" />
           </button>
         </div>
 
-        <div className="p-4 space-y-4">
-          <input
-            name="simbolo"
-            value={form.simbolo}
-            onChange={handleChange}
-            placeholder="Símbolo"
-            className="input input-bordered w-full"
-          />
+        {/* BODY */}
+        <div className="p-5 space-y-5">
+          {/* SIMBOLO */}
+          <div>
+            <label className="text-sm font-semibold text-purple-700">
+              Símbolo
+            </label>
+            <input
+              type="text"
+              name="simbolo"
+              value={form.simbolo}
+              onChange={handleChange}
+              placeholder="Ej: KG, UND..."
+              className="input input-bordered w-full mt-1 focus:outline-none focus:ring-2 focus:ring-fuchsia-400 rounded-2xl"
+            />
+          </div>
 
-          <input
-            name="unidad"
-            value={form.unidad}
-            onChange={handleChange}
-            placeholder="Unidad"
-            className="input input-bordered w-full"
-          />
+          {/* UNIDAD */}
+          <div>
+            <label className="text-sm font-semibold text-purple-700">
+              Unidad
+            </label>
+            <input
+              type="text"
+              name="unidad"
+              value={form.unidad}
+              onChange={handleChange}
+              placeholder="Ej: Kilogramo"
+              className="input input-bordered w-full mt-1 focus:outline-none focus:ring-2 focus:ring-fuchsia-400 rounded-2xl"
+            />
+          </div>
 
-          <input
-            type="checkbox"
-            name="estado"
-            checked={form.estado}
-            onChange={handleChange}
-          />
+          {/* ESTADO */}
+          <div className="flex items-center justify-between bg-purple-50 px-4 py-3 rounded-2xl">
+            <span className="text-sm font-semibold text-purple-700">
+              Estado
+            </span>
+
+            <label className="flex items-center gap-2 cursor-pointer">
+              <span className="text-xs text-purple-500">
+                {form.estado ? "Activo" : "Inactivo"}
+              </span>
+              <input
+                type="checkbox"
+                name="estado"
+                checked={form.estado}
+                onChange={handleChange}
+                className="toggle toggle-success"
+              />
+            </label>
+          </div>
         </div>
 
         {/* FOOTER */}
-        <div className="p-4 border-t flex gap-2">
+        <div className="p-5 border-t flex gap-3">
           <button
             onClick={handleSubmit}
-            className="btn flex-1 bg-fuchsia-500 text-white"
+            className="btn flex-1 rounded-xl bg-fuchsia-500 text-white border-none hover:bg-fuchsia-600 shadow-md transition"
           >
             Guardar
           </button>
@@ -104,7 +147,7 @@ function UnidadesModal({
           {modo === "editar" && (
             <button
               onClick={onEliminar}
-              className="btn flex-1 bg-red-500 text-white"
+              className="btn flex-1 rounded-xl bg-white text-fuchsia-500 border-solid border-fuchsia-500 hover:bg-fuchsia-500 hover:text-white shadow-md transition"
             >
               Eliminar
             </button>
