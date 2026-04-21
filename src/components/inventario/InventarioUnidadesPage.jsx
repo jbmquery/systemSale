@@ -107,7 +107,7 @@ function InventarioUnidadesPage() {
             <input
               type="text"
               placeholder="Buscar Unidad..."
-              className="input input-ghost w-full"
+              className="input input-ghost w-full focus:outline-none"
               value={busqueda}
               onChange={(e) => setBusqueda(e.target.value)}
             />

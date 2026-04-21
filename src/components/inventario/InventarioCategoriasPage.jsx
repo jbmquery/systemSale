@@ -106,7 +106,7 @@ function InventarioCategoriasPage() {
             <input
               type="text"
               placeholder="Buscar Categoría..."
-              className="input input-ghost w-full"
+              className="input input-ghost w-full focus:outline-none"
               value={busqueda}
               onChange={(e) => setBusqueda(e.target.value)}
             />

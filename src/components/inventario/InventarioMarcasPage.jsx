@@ -105,7 +105,7 @@ function InventarioMarcasPage() {
             <input
               type="text"
               placeholder="Buscar Marca..."
-              className="input input-ghost w-full"
+              className="input input-ghost w-full focus:outline-none"
               value={busqueda}
               onChange={(e) => setBusqueda(e.target.value)}
             />
