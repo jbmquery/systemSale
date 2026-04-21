@@ -2,19 +2,25 @@
 import { useEffect, useState } from "react";
 import { IoMdClose } from "react-icons/io";
 
-function UnidadesModal({ abierto, cerrar, modo, unidadSeleccionada, onGuardar }) {
+function UnidadesModal({
+  abierto,
+  cerrar,
+  modo,
+  unidadSeleccionada,
+  onGuardar,
+  onEliminar,
+}) {
   const [form, setForm] = useState({
     simbolo: "",
     unidad: "",
     estado: true,
   });
 
-  // 🔁 CARGAR DATOS
   useEffect(() => {
     if (modo === "editar" && unidadSeleccionada) {
       setForm({
         simbolo: unidadSeleccionada.simbolo || "",
-        unidad: unidadSeleccionada.unidad || "", // 🔥 CORREGIDO
+        unidad: unidadSeleccionada.unidad || "",
         estado: unidadSeleccionada.estado ?? true,
       });
     } else {
@@ -42,80 +48,67 @@ function UnidadesModal({ abierto, cerrar, modo, unidadSeleccionada, onGuardar })
 
   return (
     <>
-      {/* Overlay */}
       <div
-        className={`fixed inset-0 bg-black/30 z-40 transition ${
-          abierto ? "opacity-100 visible" : "opacity-0 invisible"
+        className={`fixed inset-0 bg-black/30 ${
+          abierto ? "visible" : "invisible"
         }`}
         onClick={cerrar}
       />
 
-      {/* PANEL */}
       <div
-        className={`fixed top-0 right-0 h-full w-full sm:w-[400px] bg-white z-50 shadow-xl transform transition-transform duration-300 ${
+        className={`fixed right-0 top-0 h-full w-[400px] bg-white ${
           abierto ? "translate-x-0" : "translate-x-full"
-        }`}
+        } transition`}
       >
-        {/* HEADER */}
-        <div className="flex justify-between items-center p-4 border-b">
-          <h2 className="text-xl font-bold text-purple-800">
-            {modo === "editar" ? "Editar Unidad" : "Nueva Unidad"}
-          </h2>
+        <div className="flex justify-between p-4 border-b">
+          <h2>{modo === "editar" ? "Editar Unidad" : "Nueva Unidad"}</h2>
           <button onClick={cerrar}>
-            <IoMdClose className="text-2xl text-purple-600" />
+            <IoMdClose />
           </button>
         </div>
 
-        {/* BODY */}
         <div className="p-4 space-y-4">
-          <div>
-            <label className="text-sm text-purple-700 font-semibold">
-              Símbolo
-            </label>
-            <input
-              type="text"
-              name="simbolo"
-              value={form.simbolo}
-              onChange={handleChange}
-              className="input input-bordered w-full mt-1"
-            />
-          </div>
+          <input
+            name="simbolo"
+            value={form.simbolo}
+            onChange={handleChange}
+            placeholder="Símbolo"
+            className="input input-bordered w-full"
+          />
 
-          <div>
-            <label className="text-sm text-purple-700 font-semibold">
-              Unidad
-            </label>
-            <input
-              type="text"
-              name="unidad"
-              value={form.unidad}
-              onChange={handleChange}
-              className="input input-bordered w-full mt-1"
-            />
-          </div>
+          <input
+            name="unidad"
+            value={form.unidad}
+            onChange={handleChange}
+            placeholder="Unidad"
+            className="input input-bordered w-full"
+          />
 
-          <div className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              name="estado"
-              checked={form.estado}
-              onChange={handleChange}
-              className="toggle toggle-success"
-            />
-            <span className="text-sm font-semibold text-purple-700">
-              Activo
-            </span>
-          </div>
+          <input
+            type="checkbox"
+            name="estado"
+            checked={form.estado}
+            onChange={handleChange}
+          />
         </div>
 
         {/* FOOTER */}
-        <div className="p-4 border-t">
+        <div className="p-4 border-t flex gap-2">
           <button
             onClick={handleSubmit}
-            className="btn w-full rounded-xl bg-fuchsia-500 text-white border-none hover:bg-fuchsia-600"
+            className="btn flex-1 bg-fuchsia-500 text-white"
           >
             Guardar
           </button>
+
+          {modo === "editar" && (
+            <button
+              onClick={onEliminar}
+              className="btn flex-1 bg-red-500 text-white"
+            >
+              Eliminar
+            </button>
+          )}
         </div>
       </div>
     </>
