@@ -6,10 +6,10 @@ import { db } from "../../firebase/config";
 import {
   collection,
   addDoc,
-  getDocs,
   updateDoc,
   deleteDoc,
   doc,
+  onSnapshot,
 } from "firebase/firestore";
 
 function InventarioUnidadesPage() {
@@ -19,25 +19,29 @@ function InventarioUnidadesPage() {
   const [unidadSeleccionada, setUnidadSeleccionada] = useState(null);
   const [productos, setProductos] = useState([]);
 
-  const obtenerUnidades = async () => {
-    const querySnapshot = await getDocs(collection(db, "unidades"));
-
-    const lista = querySnapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
-
-    setProductos(lista);
-  };
-
+  // 🔥 TIEMPO REAL
   useEffect(() => {
-    obtenerUnidades();
+    const unsubscribe = onSnapshot(
+      collection(db, "unidades"),
+      (snapshot) => {
+        const lista = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+
+        setProductos(lista);
+      }
+    );
+
+    return () => unsubscribe();
   }, []);
 
+  // 🔍 FILTRO
   const filtrados = productos.filter((p) =>
     p.unidad?.toLowerCase().includes(busqueda.toLowerCase())
   );
 
+  // 🟣 MODAL
   const abrirCrear = () => {
     setModoModal("crear");
     setUnidadSeleccionada(null);
@@ -54,7 +58,6 @@ function InventarioUnidadesPage() {
   const guardarUnidad = async (data) => {
     try {
       if (modoModal === "editar") {
-        // ✏️ ACTUALIZAR
         const ref = doc(db, "unidades", unidadSeleccionada.id);
 
         await updateDoc(ref, {
@@ -65,7 +68,6 @@ function InventarioUnidadesPage() {
 
         console.log("✏️ Actualizado");
       } else {
-        // 🆕 CREAR
         await addDoc(collection(db, "unidades"), {
           simbolo: data.simbolo,
           unidad: data.unidad,
@@ -76,7 +78,7 @@ function InventarioUnidadesPage() {
         console.log("✅ Creado");
       }
 
-      await obtenerUnidades();
+      // 🚀 ya no recargamos manualmente
     } catch (error) {
       console.error("❌ Error:", error);
     }
@@ -90,7 +92,6 @@ function InventarioUnidadesPage() {
 
       console.log("🗑️ Eliminado");
 
-      await obtenerUnidades();
       setModalAbierto(false);
     } catch (error) {
       console.error("❌ Error al eliminar:", error);
@@ -134,13 +135,21 @@ function InventarioUnidadesPage() {
               </thead>
 
               <tbody className="text-center">
-            {filtrados.map((p) => (
-              <tr key={p.id} className="hover:bg-purple-50 transition" onClick={() => abrirEditar(p)}>
-                <td className="font-semibold text-purple-800 py-2 px-2">{p.simbolo}</td>
-                <td className="py-2 px-2">{p.unidad}</td>
-                <td className="py-2 px-2">{p.estado ? "Activo" : "Inactivo"}</td>
-              </tr>
-            ))}
+                {filtrados.map((p) => (
+                  <tr
+                    key={p.id}
+                    className="hover:bg-purple-50 transition"
+                    onClick={() => abrirEditar(p)}
+                  >
+                    <td className="font-semibold text-purple-800 py-2 px-2">
+                      {p.simbolo}
+                    </td>
+                    <td className="py-2 px-2">{p.unidad}</td>
+                    <td className="py-2 px-2">
+                      {p.estado ? "Activo" : "Inactivo"}
+                    </td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>
@@ -153,7 +162,7 @@ function InventarioUnidadesPage() {
         modo={modoModal}
         unidadSeleccionada={unidadSeleccionada}
         onGuardar={guardarUnidad}
-        onEliminar={eliminarUnidad} // 🔥 NUEVO
+        onEliminar={eliminarUnidad}
       />
     </>
   );

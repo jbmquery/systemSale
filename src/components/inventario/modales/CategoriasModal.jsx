@@ -1,36 +1,33 @@
-//src/components/inventario/modales/UnidadesModal.jsx
+//src/components/inventario/modales/CategoriasModal.jsx
 import { useEffect, useState } from "react";
 import { IoMdClose } from "react-icons/io";
 
-function UnidadesModal({
+function CategoriasModal({
   abierto,
   cerrar,
   modo,
-  unidadSeleccionada,
+  categoriaSeleccionada,
   onGuardar,
   onEliminar,
 }) {
   const [form, setForm] = useState({
-    simbolo: "",
-    unidad: "",
+    categoria: "",
     estado: true,
   });
 
   useEffect(() => {
-    if (modo === "editar" && unidadSeleccionada ) {
+    if (modo === "editar" && categoriaSeleccionada) {
       setForm({
-        simbolo: unidadSeleccionada.simbolo || "",
-        unidad: unidadSeleccionada.unidad || "",
-        estado: unidadSeleccionada.estado ?? true,
+        categoria: categoriaSeleccionada.categoria || "",
+        estado: categoriaSeleccionada.estado ?? true,
       });
     } else {
       setForm({
-        simbolo: "",
-        unidad: "",
+        categoria: "",
         estado: true,
       });
     }
-  }, [modo, unidadSeleccionada]);
+  }, [modo, categoriaSeleccionada]);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -66,12 +63,12 @@ function UnidadesModal({
         <div className="flex justify-between items-center p-5 border-b">
           <div>
             <h2 className="text-xl font-bold text-purple-800">
-              {modo === "editar" ? "Editar Unidad" : "Nueva Unidad"}
+              {modo === "editar" ? "Editar Categoría" : "Nueva Categoría"}
             </h2>
             <p className="text-xs text-purple-500">
               {modo === "editar"
-                ? "Modifica la información de la unidad"
-                : "Registra una nueva unidad"}
+                ? "Modifica la información de la categoría"
+                : "Registra una nueva categoría"}
             </p>
           </div>
 
@@ -85,32 +82,17 @@ function UnidadesModal({
 
         {/* BODY */}
         <div className="p-5 space-y-5">
-          {/* SIMBOLO */}
+          {/* CATEGORIA */}
           <div>
             <label className="text-sm font-semibold text-purple-700">
-              Símbolo
+              Categoría
             </label>
             <input
               type="text"
-              name="simbolo"
-              value={form.simbolo}
+              name="categoria"
+              value={form.categoria}
               onChange={handleChange}
-              placeholder="Ej: KG, UND..."
-              className="input input-bordered w-full mt-1 focus:outline-none focus:ring-2 focus:ring-fuchsia-400 rounded-2xl"
-            />
-          </div>
-
-          {/* UNIDAD */}
-          <div>
-            <label className="text-sm font-semibold text-purple-700">
-              Unidad
-            </label>
-            <input
-              type="text"
-              name="unidad"
-              value={form.unidad}
-              onChange={handleChange}
-              placeholder="Ej: Kilogramo"
+              placeholder="Ej: Bebidas"
               className="input input-bordered w-full mt-1 focus:outline-none focus:ring-2 focus:ring-fuchsia-400 rounded-2xl"
             />
           </div>
@@ -148,7 +130,7 @@ function UnidadesModal({
           {modo === "editar" && (
             <button
               onClick={onEliminar}
-              className="btn flex-1 rounded-xl bg-white text-fuchsia-500 border-solid border-fuchsia-500 hover:bg-fuchsia-500 hover:text-white shadow-md transition"
+              className="btn flex-1 rounded-xl bg-white text-fuchsia-500 border border-fuchsia-500 hover:bg-fuchsia-500 hover:text-white shadow-md transition"
             >
               Eliminar
             </button>
@@ -159,4 +141,4 @@ function UnidadesModal({
   );
 }
 
-export default UnidadesModal;
+export default CategoriasModal;
