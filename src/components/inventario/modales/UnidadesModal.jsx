@@ -42,7 +42,11 @@ function UnidadesModal({
   };
 
   const handleSubmit = () => {
-    onGuardar(form);
+    onGuardar({
+      ...form,
+      simbolo: form.simbolo?.toUpperCase(),
+      unidad: form.unidad?.toUpperCase(),
+    });
     cerrar();
   };
 

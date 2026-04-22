@@ -39,7 +39,11 @@ function CategoriasModal({
   };
 
   const handleSubmit = () => {
-    onGuardar(form);
+    onGuardar({
+      ...form,
+      categoria: form.categoria?.toUpperCase(),
+    });
+
     cerrar();
   };
 

@@ -38,7 +38,10 @@ function MarcasModal({
   };
 
   const handleSubmit = () => {
-    onGuardar(form);
+    onGuardar({
+      ...form,
+      marca: form.marca?.toUpperCase(),
+    });
     cerrar();
   };
 

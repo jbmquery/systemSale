@@ -92,7 +92,7 @@ function ProductosModal({
 const handleSubmit = async () => {
   await onGuardar({
     codigo: form.codigo,
-    producto: form.producto,
+    producto: form.producto?.toUpperCase(),
     categoria: form.categoria,
     marca: form.marca,
     unidad: form.unidad,
@@ -119,7 +119,7 @@ const handleSubmit = async () => {
 
       {/* PANEL */}
       <div
-        className={`fixed top-0 right-0 h-full w-full sm:w-[420px] bg-white z-50 shadow-2xl transform transition-all duration-300 ${
+        className={`fixed top-0 right-0 h-full w-full sm:w-[420px] bg-white z-50 shadow-2xl transform transition-all duration-300 flex flex-col ${
           abierto ? "translate-x-0" : "translate-x-full"
         }`}
       >
@@ -145,7 +145,7 @@ const handleSubmit = async () => {
         </div>
 
         {/* BODY */}
-        <div className="p-5 space-y-5 overflow-y-auto">
+        <div className="p-5 space-y-5 overflow-y-auto flex-1 scrollbar-thin scrollbar-thumb-purple-300">
           {/* CODIGO */}
           <div className="flex flex-col gap-1">
             <label className="text-sm font-semibold text-purple-700">

@@ -89,7 +89,7 @@ function InventarioProductosPage() {
             <input
               type="text"
               placeholder="Buscar producto..."
-              className="input input-ghost w-full"
+              className="input input-ghost w-full focus:outline-none"
               value={busqueda}
               onChange={(e) => setBusqueda(e.target.value)}
             />
@@ -114,8 +114,8 @@ function InventarioProductosPage() {
                 <th>Categoría</th>
                 <th>Marca</th>
                 <th>Unidad</th>
-                <th>Compra</th>
-                <th>Venta</th>
+                <th>S/ Compra</th>
+                <th>S/ Venta</th>
                 <th>Stock</th>
                 <th>Lote</th>
                 <th>Vence</th>
@@ -137,8 +137,8 @@ function InventarioProductosPage() {
                   <td>{p.categoria}</td>
                   <td>{p.marca}</td>
                   <td>{p.unidad}</td>
-                  <td>{p.compra}</td>
-                  <td>{p.venta}</td>
+                  <td>{p.compra.toFixed(2)}</td>
+                  <td>{p.venta.toFixed(2)}</td>
                   <td>{p.stock}</td>
                   <td>{p.lote}</td>
                   <td>
