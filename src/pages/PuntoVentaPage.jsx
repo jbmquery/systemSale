@@ -9,18 +9,14 @@ import { GrLocation } from "react-icons/gr";
 import { IoMdClose } from "react-icons/io";
 import { collection, onSnapshot } from "firebase/firestore";
 import { db } from "../firebase/config";
+import { IoMdAdd } from "react-icons/io";
+import { IoMdRemove } from "react-icons/io";
 
 function PuntoVentaPage() {
   const [sidebarAbierto, setSidebarAbierto] = useState(false);
   const [productos, setProductos] = useState([]);
   const [busqueda, setBusqueda] = useState("");
   const [carrito, setCarrito] = useState([]);
-
-  const agregarProducto = (producto) => {
-    setCarrito([...carrito, producto]);
-  };
-
-  const total = carrito.reduce((acc, item) => acc + item.precio, 0);
 
   useEffect(() => {
     const unsubscribe = onSnapshot(collection(db, "productos"), (snapshot) => {
@@ -35,10 +31,72 @@ function PuntoVentaPage() {
     return () => unsubscribe();
   }, []);
 
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (carrito.length === 0) return;
+
+      const ultimo = carrito[carrito.length - 1]; // producto activo
+
+      if (e.key === "ArrowUp" || e.key === "+") {
+        aumentarCantidad(ultimo.codigo);
+      }
+
+      if (e.key === "ArrowDown" || e.key === "-") {
+        disminuirCantidad(ultimo.codigo);
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [carrito]);
+
   const productosFiltrados = productos.filter(
     (p) =>
       p.producto?.toLowerCase().includes(busqueda.toLowerCase()) ||
       p.codigo?.includes(busqueda),
+  );
+
+  const agregarProducto = (producto) => {
+    setCarrito((prev) => {
+      const existe = prev.find((p) => p.codigo === producto.codigo);
+
+      if (existe) {
+        return prev.map((p) =>
+          p.codigo === producto.codigo ? { ...p, cantidad: p.cantidad + 1 } : p,
+        );
+      }
+
+      return [...prev, { ...producto, cantidad: 1 }];
+    });
+  };
+
+  const aumentarCantidad = (codigo) => {
+    setCarrito((prev) =>
+      prev.map((p) =>
+        p.codigo === codigo ? { ...p, cantidad: p.cantidad + 1 } : p,
+      ),
+    );
+  };
+
+  const disminuirCantidad = (codigo) => {
+    setCarrito(
+      (prev) =>
+        prev
+          .map((p) =>
+            p.codigo === codigo ? { ...p, cantidad: p.cantidad - 1 } : p,
+          )
+          .filter((p) => p.cantidad > 0), // 👈 elimina si llega a 0
+    );
+  };
+
+  const eliminarProducto = (codigo) => {
+    setCarrito((prev) => prev.filter((p) => p.codigo !== codigo));
+  };
+
+  const total = carrito.reduce(
+    (acc, item) => acc + item.venta * item.cantidad,
+    0,
   );
 
   return (
@@ -88,9 +146,9 @@ function PuntoVentaPage() {
                   key={p.id}
                   onClick={() =>
                     agregarProducto({
-                      nombre: p.producto,
-                      precio: p.venta,
-                      codBar: p.codigo,
+                      producto: p.producto,
+                      venta: p.venta,
+                      codigo: p.codigo,
                     })
                   }
                   className="bg-purple-50 hover:bg-purple-100 cursor-pointer rounded-xl p-4 shadow-sm transition"
@@ -194,22 +252,52 @@ function PuntoVentaPage() {
             </div>
             {/* RESUMEN DE COMPRAS */}
             <div className="flex-1 space-y-3">
-              {carrito.map((item, i) => (
+              {carrito.map((item) => (
                 <div
-                  key={i}
-                  className="flex justify-between items-center bg-purple-50 rounded-xl px-3 py-2"
+                  key={item.codigo}
+                  className="flex flex-row justify-between items-center bg-purple-50 rounded-xl px-3 py-2 gap-2"
                 >
                   <div>
-                    <p className="font-semibold text-sm">{item.nombre}</p>
+                    <p className="font-semibold text-sm">{item.producto}</p>
                     <p className="text-sm text-gray-500">
-                      S/ {item.precio.toFixed(2)}
+                      P. Uni: S/ {item.venta.toFixed(2)} - S/{" "}
+                      {(item.venta * item.cantidad).toFixed(2)}
                     </p>
-                    <p className="text-xs text-gray-500">cod: {item.codBar}</p>
+                    <p className="text-xs text-gray-500">cod: {item.codigo}</p>
                   </div>
 
-                  <button className="text-red-500">
-                    <FaTrash />
-                  </button>
+                  {/* CONTROLES */}
+                  <div className="flex flex-col items-end gap-2">
+                    <div className="flex flex-row gap-1">
+                      <button
+                        onClick={() => disminuirCantidad(item.codigo)}
+                        className="btn btn-sm bg-gray-200"
+                      >
+                        <IoMdRemove />
+                      </button>
+
+                      <input
+                        type="text"
+                        value={item.cantidad}
+                        readOnly
+                        className="w-13 text-center input input-bordered input-sm text-base m-0 p-0"
+                      />
+
+                      <button
+                        onClick={() => aumentarCantidad(item.codigo)}
+                        className="btn btn-sm bg-gray-200"
+                      >
+                        <IoMdAdd />
+                      </button>
+                    </div>
+
+                    <button
+                      onClick={() => eliminarProducto(item.codigo)}
+                      className="text-red-500 ml-2 pointer-cursor hover:text-red-700"
+                    >
+                      <FaTrash />
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
