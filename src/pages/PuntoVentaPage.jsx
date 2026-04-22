@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Navbar from "../components/Navbar";
 import Sidebar from "../components/Sidebar";
 import { FaSearch, FaTrash } from "react-icons/fa";
@@ -7,17 +7,13 @@ import { FaRegUser } from "react-icons/fa6";
 import { AiOutlineIdcard } from "react-icons/ai";
 import { GrLocation } from "react-icons/gr";
 import { IoMdClose } from "react-icons/io";
+import { collection, onSnapshot } from "firebase/firestore";
+import { db } from "../firebase/config";
 
 function PuntoVentaPage() {
   const [sidebarAbierto, setSidebarAbierto] = useState(false);
-
-  const productos = [
-    { nombre: "Leche Gloria", precio: 4.5, codBar: "7750151008921" },
-    { nombre: "Pan Integral", precio: 3.2, codBar: "7759185006163" },
-    { nombre: "Yogurt Fresa", precio: 3.0, codBar: "6902540752361" },
-    { nombre: "Arroz Costeño", precio: 5.8, codBar: "6972329479963" },
-  ];
-
+  const [productos, setProductos] = useState([]);
+  const [busqueda, setBusqueda] = useState("");
   const [carrito, setCarrito] = useState([]);
 
   const agregarProducto = (producto) => {
@@ -25,6 +21,25 @@ function PuntoVentaPage() {
   };
 
   const total = carrito.reduce((acc, item) => acc + item.precio, 0);
+
+  useEffect(() => {
+    const unsubscribe = onSnapshot(collection(db, "productos"), (snapshot) => {
+      const lista = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+
+      setProductos(lista);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  const productosFiltrados = productos.filter(
+    (p) =>
+      p.producto?.toLowerCase().includes(busqueda.toLowerCase()) ||
+      p.codigo?.includes(busqueda),
+  );
 
   return (
     <div className="flex min-h-screen bg-gradient-to-b from-purple-50 to-purple-100">
@@ -57,7 +72,9 @@ function PuntoVentaPage() {
               <input
                 type="text"
                 placeholder="Buscar o escanear producto..."
-                className="input input-ghost w-full"
+                className="input input-ghost w-full focus:outline-none"
+                value={busqueda}
+                onChange={(e) => setBusqueda(e.target.value)}
               />
               <button className="btn rounded-xl bg-purple-700 text-white border-none hover:bg-purple-800">
                 <FaBarcode />
@@ -66,29 +83,37 @@ function PuntoVentaPage() {
 
             {/* LISTA DE PRODUCTOS */}
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-              {productos.map((p, i) => (
+              {productosFiltrados.map((p) => (
                 <div
-                  key={i}
-                  onClick={() => agregarProducto(p)}
+                  key={p.id}
+                  onClick={() =>
+                    agregarProducto({
+                      nombre: p.producto,
+                      precio: p.venta,
+                      codBar: p.codigo,
+                    })
+                  }
                   className="bg-purple-50 hover:bg-purple-100 cursor-pointer rounded-xl p-4 shadow-sm transition"
                 >
                   {/* IMAGEN */}
                   <div className="w-full h-28 bg-white rounded-lg flex items-center justify-center mb-3 overflow-hidden">
                     <img
                       src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTKnKnw0MtmVH5_-A-wrEh5OiTSL3lu_5MZZA&s"
-                      alt={p.nombre}
+                      alt={p.producto}
                       className="h-full object-contain"
                     />
                   </div>
 
                   {/* DATOS */}
-                  <h3 className="text-sm md:text-base font-bold text-purple-800">
-                    {p.nombre}
+                  <h3 className="text-xs md:text-sm font-bold text-purple-800">
+                    {p.producto}
                   </h3>
-                  <p className="text-sm md:text-base text-fuchsia-600 font-bold">
-                    S/ {p.precio}
+
+                  <p className="text-sm md:text-base text-fuchsia-600 font-bold mt-1">
+                    S/ {p.venta.toFixed(2)}
                   </p>
-                  <p className="text-xs text-gray-500">COD: {p.codBar}</p>
+
+                  <p className="text-xs text-gray-500 mt-1">COD: {p.codigo}</p>
                 </div>
               ))}
             </div>
@@ -175,8 +200,10 @@ function PuntoVentaPage() {
                   className="flex justify-between items-center bg-purple-50 rounded-xl px-3 py-2"
                 >
                   <div>
-                    <p className="font-semibold">{item.nombre}</p>
-                    <p className="text-sm text-gray-500">S/ {item.precio}</p>
+                    <p className="font-semibold text-sm">{item.nombre}</p>
+                    <p className="text-sm text-gray-500">
+                      S/ {item.precio.toFixed(2)}
+                    </p>
                     <p className="text-xs text-gray-500">cod: {item.codBar}</p>
                   </div>
 
@@ -200,7 +227,7 @@ function PuntoVentaPage() {
               <div className="flex flex-row gap-1">
                 <select
                   defaultValue="Pick a font"
-                  className="select select-ghost rounded-none rounded-l-xl bg-success"
+                  className="select select-ghost rounded-none rounded-l-xl bg-success "
                 >
                   <option disabled={true}>Tipo de Pago</option>
                   <option>Efectivo</option>
