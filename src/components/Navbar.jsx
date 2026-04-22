@@ -1,12 +1,21 @@
-//src/components/Navbar.jsx
 import { FaBell, FaUserCircle, FaBars } from "react-icons/fa";
+import { ImExit } from "react-icons/im";
+import { signOut } from "firebase/auth";
+import { auth } from "../firebase/config";
+import { useNavigate } from "react-router-dom";
 
 function Navbar({ abrirSidebar }) {
+  const navigate = useNavigate(); // ✅ ahora sí
+
+  const logout = async () => {
+    await signOut(auth);
+    navigate("/");
+  };
+
   return (
     <div className="w-full h-16 bg-white shadow-sm flex items-center justify-between px-6 rounded-b-2xl">
 
       <div className="flex items-center gap-4">
-
         <button
           className="md:hidden text-xl text-purple-800"
           onClick={abrirSidebar}
@@ -17,7 +26,6 @@ function Navbar({ abrirSidebar }) {
         <h1 className="text-xl font-bold text-purple-800">
           Salomé Store
         </h1>
-
       </div>
 
       <div className="flex items-center gap-4">
@@ -28,7 +36,11 @@ function Navbar({ abrirSidebar }) {
           </span>
         </button>
 
-        <FaUserCircle className="text-3xl text-purple-700 cursor-pointer" />
+        {/* 👇 aquí disparas logout */}
+        <ImExit
+          onClick={logout}
+          className="text-2xl text-purple-700 cursor-pointer hover:scale-110 transition"
+        />
       </div>
     </div>
   );

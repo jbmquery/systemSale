@@ -1,22 +1,37 @@
 //src/pages/LoginPage.jsx
 import { useState } from "react";
 import { FaAngleRight } from "react-icons/fa6";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from "../firebase/config";
+import { useNavigate } from "react-router-dom";
 
 function LoginPage() {
   const [correo, setCorreo] = useState("");
   const [clave, setClave] = useState("");
+  const navigate = useNavigate();
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
 
-    console.log("Correo:", correo);
-    console.log("Clave:", clave);
+    try {
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        correo,
+        clave,
+      );
+
+      console.log("Usuario logueado:", userCredential.user);
+
+      navigate("/dashboard"); // 🚀 redirige
+    } catch (error) {
+      console.error(error.message);
+      alert("Credenciales incorrectas");
+    }
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-purple-950 via-purple-900 to-purple-700 flex items-center justify-center px-4">
       <div className="w-full max-w-md">
-
         <div className="flex justify-between items-center mb-8">
           <p className="text-white text-sm">¿No tienes una cuenta?</p>
 
@@ -36,12 +51,9 @@ function LoginPage() {
           </div>
         </div>
 
-        <h3 className="text-white text-2xl font-bold mb-5">
-          Iniciar sesión
-        </h3>
+        <h3 className="text-white text-2xl font-bold mb-5">Iniciar sesión</h3>
 
         <form onSubmit={handleLogin} className="space-y-4">
-
           <div className="form-control">
             <label className="label">
               <span className="label-text text-white font-medium ">
@@ -83,7 +95,6 @@ function LoginPage() {
           <button className="btn w-full rounded-full border-none text-xl font-bold bg-gradient-to-r from-lime-200 to-cyan-300 text-fuchsia-600 hover:scale-[1.02] transition py-3 cursor-pointer hover:bg-gradient-to-r hover:from-cyan-300 hover:to-lime-200">
             Continuar →
           </button>
-
         </form>
       </div>
     </div>

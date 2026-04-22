@@ -198,7 +198,7 @@ function PuntoVentaPage() {
                   aria-label="Boleta Electrónica"
                   defaultChecked
                 />
-                <div className="tab-content bg-base-100 border-base-300 p-6">
+                <div className="tab-content bg-base-100 border-base-300 p-2">
                   <div className="flex flex-col gap-3">
                     {/* BUSCADOR DE SUNAT BOLETAS */}
                     <div className="flex items-center gap-3 mb-2 bg-purple-50 rounded-xl px-4 py-1">
@@ -206,7 +206,7 @@ function PuntoVentaPage() {
                       <input
                         type="text"
                         placeholder="Buscar Cliente"
-                        className="input input-ghost w-full"
+                        className="input input-ghost w-full focus:outline-none"
                       />
                       <IoMdClose className="text-purple-500 text-2xl cursor-pointer hover:text-purple-700" />
                     </div>
@@ -271,7 +271,7 @@ function PuntoVentaPage() {
                     <div className="flex flex-row gap-1">
                       <button
                         onClick={() => disminuirCantidad(item.codigo)}
-                        className="btn btn-sm bg-gray-200 rounded-lg"
+                        className="btn btn-xs md:btn-sm bg-gray-200 rounded-lg"
                       >
                         <IoMdRemove />
                       </button>
@@ -280,12 +280,12 @@ function PuntoVentaPage() {
                         type="text"
                         value={item.cantidad}
                         readOnly
-                        className="w-8 text-center input input-bordered input-sm text-base m-0 p-0 rounded-lg"
+                        className="w-8 text-center input input-bordered input-xs md:input-sm text-base m-0 p-0 rounded-lg"
                       />
 
                       <button
                         onClick={() => aumentarCantidad(item.codigo)}
-                        className="btn btn-sm bg-gray-200 rounded-lg"
+                        className="btn btn-xs md:btn-sm bg-gray-200 rounded-lg"
                       >
                         <IoMdAdd />
                       </button>
@@ -293,7 +293,7 @@ function PuntoVentaPage() {
 
                     <button
                       onClick={() => eliminarProducto(item.codigo)}
-                      className="btn btn-sm bg-red-500 text-white hover:bg-red-600 border-none rounded-lg"
+                      className="btn btn-xs md:btn-sm bg-red-500 text-white hover:bg-red-600 border-none rounded-lg"
                     >
                       <FaTrash />
                     </button>
@@ -328,6 +328,7 @@ function PuntoVentaPage() {
                 <input
                   type="date"
                   className="input input-ghost rounded-none bg-purple-50 text-sm w-full sm:w-40"
+                  value={new Date().toISOString().split("T")[0]}
                 />
 
                 <input
@@ -357,6 +358,7 @@ function PuntoVentaPage() {
               <input
                 type="date"
                 className="input input-ghost rounded-none bg-purple-50 text-sm w-full sm:w-40"
+                value={new Date().toISOString().split("T")[0]}
               />
 
               <input
