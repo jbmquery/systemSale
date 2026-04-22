@@ -251,15 +251,15 @@ function PuntoVentaPage() {
               </div>
             </div>
             {/* RESUMEN DE COMPRAS */}
-            <div className="flex-1 space-y-3">
+            <div className="flex-1 space-y-3 ">
               {carrito.map((item) => (
                 <div
                   key={item.codigo}
                   className="flex flex-row justify-between items-center bg-purple-50 rounded-xl px-3 py-2 gap-2"
                 >
-                  <div>
-                    <p className="font-semibold text-sm">{item.producto}</p>
-                    <p className="text-sm text-gray-500">
+                  <div className="">
+                    <p className="font-semibold text-xs">{item.producto}</p>
+                    <p className="text-xs text-gray-500">
                       P. Uni: S/ {item.venta.toFixed(2)} - S/{" "}
                       {(item.venta * item.cantidad).toFixed(2)}
                     </p>
@@ -267,11 +267,11 @@ function PuntoVentaPage() {
                   </div>
 
                   {/* CONTROLES */}
-                  <div className="flex flex-col items-end gap-2">
+                  <div className="flex flex-col items-end gap-2 h-full">
                     <div className="flex flex-row gap-1">
                       <button
                         onClick={() => disminuirCantidad(item.codigo)}
-                        className="btn btn-sm bg-gray-200"
+                        className="btn btn-sm bg-gray-200 rounded-lg"
                       >
                         <IoMdRemove />
                       </button>
@@ -280,12 +280,12 @@ function PuntoVentaPage() {
                         type="text"
                         value={item.cantidad}
                         readOnly
-                        className="w-13 text-center input input-bordered input-sm text-base m-0 p-0"
+                        className="w-8 text-center input input-bordered input-sm text-base m-0 p-0 rounded-lg"
                       />
 
                       <button
                         onClick={() => aumentarCantidad(item.codigo)}
-                        className="btn btn-sm bg-gray-200"
+                        className="btn btn-sm bg-gray-200 rounded-lg"
                       >
                         <IoMdAdd />
                       </button>
@@ -293,7 +293,7 @@ function PuntoVentaPage() {
 
                     <button
                       onClick={() => eliminarProducto(item.codigo)}
-                      className="text-red-500 ml-2 pointer-cursor hover:text-red-700"
+                      className="btn btn-sm bg-red-500 text-white hover:bg-red-600 border-none rounded-lg"
                     >
                       <FaTrash />
                     </button>
