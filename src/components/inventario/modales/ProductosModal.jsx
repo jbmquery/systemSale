@@ -1,10 +1,9 @@
+// src/components/inventario/modales/ProductosModal.jsx
 import { useEffect, useState } from "react";
 import { IoMdClose } from "react-icons/io";
 import { db } from "../../../firebase/config";
 import { FaBarcode } from "react-icons/fa6";
 import { collection, onSnapshot } from "firebase/firestore";
-
-import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 function ProductosModal({
   abierto,
@@ -32,7 +31,6 @@ function ProductosModal({
   const [categorias, setCategorias] = useState([]);
   const [marcas, setMarcas] = useState([]);
   const [unidades, setUnidades] = useState([]);
-  const [file, setFile] = useState(null);
 
   // 🔥 SELECTS EN TIEMPO REAL
   useEffect(() => {
@@ -91,31 +89,23 @@ function ProductosModal({
     });
   };
 
-  // 📦 SUBIR IMAGEN
-  const subirImagen = async () => {
-    if (!file) return form.imagen;
+const handleSubmit = async () => {
+  await onGuardar({
+    codigo: form.codigo,
+    producto: form.producto,
+    categoria: form.categoria,
+    marca: form.marca,
+    unidad: form.unidad,
+    compra: parseFloat(form.compra),
+    venta: parseFloat(form.venta),
+    stock: parseInt(form.stock),
+    lote: form.lote,
+    vence: form.vence ? new Date(form.vence) : null,
+    estado: form.estado,
+  });
 
-    const storage = getStorage();
-    const storageRef = ref(storage, `productos/${Date.now()}_${file.name}`);
-
-    await uploadBytes(storageRef, file);
-    return await getDownloadURL(storageRef);
-  };
-
-  const handleSubmit = async () => {
-    const urlImagen = await subirImagen();
-
-    await onGuardar({
-      ...form,
-      imagen: urlImagen,
-      compra: parseFloat(form.compra),
-      venta: parseFloat(form.venta),
-      stock: parseInt(form.stock),
-      vence: form.vence ? new Date(form.vence) : null,
-    });
-
-    cerrar();
-  };
+  cerrar();
+};
 
   return (
     <>

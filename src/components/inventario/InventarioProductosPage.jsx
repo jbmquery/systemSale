@@ -1,3 +1,4 @@
+// src/components/inventario/InventarioProductosPage.jsx
 import { useState, useEffect } from "react";
 import { FaSearch, FaPlus } from "react-icons/fa";
 import ProductosModal from "./modales/ProductosModal";
