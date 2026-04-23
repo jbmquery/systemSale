@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import Navbar from "../components/Navbar";
 import Sidebar from "../components/Sidebar";
 import { FaSearch, FaTrash } from "react-icons/fa";
+import { IoCashOutline } from "react-icons/io5";
 import { FaBarcode } from "react-icons/fa6";
 import { FaRegUser } from "react-icons/fa6";
 import { AiOutlineIdcard } from "react-icons/ai";
@@ -11,12 +12,22 @@ import { collection, onSnapshot } from "firebase/firestore";
 import { db } from "../firebase/config";
 import { IoMdAdd } from "react-icons/io";
 import { IoMdRemove } from "react-icons/io";
+import { GrMoney } from "react-icons/gr";
+import { FaTruck, FaGift, FaPercentage } from "react-icons/fa";
 
 function PuntoVentaPage() {
   const [sidebarAbierto, setSidebarAbierto] = useState(false);
   const [productos, setProductos] = useState([]);
   const [busqueda, setBusqueda] = useState("");
   const [carrito, setCarrito] = useState([]);
+
+  // 💳 PAGOS DINÁMICOS
+  const [pagos, setPagos] = useState([
+    { id: Date.now(), tipo: "Efectivo", monto: "" },
+  ]);
+
+  // 🎯 EXTRAS (descuento, propina, delivery)
+  const [extras, setExtras] = useState([]);
 
   useEffect(() => {
     const unsubscribe = onSnapshot(collection(db, "productos"), (snapshot) => {
@@ -94,10 +105,97 @@ function PuntoVentaPage() {
     setCarrito((prev) => prev.filter((p) => p.codigo !== codigo));
   };
 
+  // ➕ PAGOS
+  const agregarPago = () => {
+    setPagos([...pagos, { id: Date.now(), tipo: "Efectivo", monto: "" }]);
+  };
+
+  const eliminarPago = (id) => {
+    setPagos(pagos.filter((p) => p.id !== id));
+  };
+
+  const actualizarPago = (id, campo, valor) => {
+    setPagos(pagos.map((p) => (p.id === id ? { ...p, [campo]: valor } : p)));
+  };
+
+  // ➕ EXTRAS
+  const agregarExtra = () => {
+    setExtras([...extras, { id: Date.now(), tipo: "Descuento S/", monto: "" }]);
+  };
+
+  const eliminarExtra = (id) => {
+    setExtras(extras.filter((e) => e.id !== id));
+  };
+
+  const actualizarExtra = (id, campo, valor) => {
+    setExtras(extras.map((e) => (e.id === id ? { ...e, [campo]: valor } : e)));
+  };
+
   const total = carrito.reduce(
     (acc, item) => acc + item.venta * item.cantidad,
     0,
   );
+
+  let descuentoTotal = 0;
+  let propinaTotal = 0;
+  let deliveryTotal = 0;
+
+  extras.forEach((e) => {
+    const monto = parseFloat(e.monto) || 0;
+
+    if (e.tipo === "Descuento %") {
+      descuentoTotal += (total * monto) / 100;
+    }
+
+    if (e.tipo === "Descuento S/") {
+      descuentoTotal += monto;
+    }
+
+    if (e.tipo === "Propina") {
+      propinaTotal += monto;
+    }
+
+    if (e.tipo === "Delivery") {
+      deliveryTotal += monto;
+    }
+  });
+
+  const totalFinal = total - descuentoTotal + propinaTotal + deliveryTotal;
+
+  const totalPagado = pagos.reduce(
+    (acc, p) => acc + (parseFloat(p.monto) || 0),
+    0,
+  );
+
+  const vuelto = totalPagado - totalFinal;
+
+  const getExtraStyle = (tipo) => {
+    if (tipo.includes("Descuento")) {
+      return {
+        color: "from-red-400 to-red-600",
+        icon: <FaPercentage />,
+      };
+    }
+
+    if (tipo === "Propina") {
+      return {
+        color: "from-yellow-300 to-yellow-500",
+        icon: <FaGift />,
+      };
+    }
+
+    if (tipo === "Delivery") {
+      return {
+        color: "from-cyan-300 to-blue-400",
+        icon: <FaTruck />,
+      };
+    }
+
+    return {
+      color: "from-gray-300 to-gray-400",
+      icon: <GrMoney />,
+    };
+  };
 
   return (
     <div className="flex min-h-screen bg-gradient-to-b from-purple-50 to-purple-100">
@@ -293,7 +391,7 @@ function PuntoVentaPage() {
 
                     <button
                       onClick={() => eliminarProducto(item.codigo)}
-                      className="btn btn-xs md:btn-sm bg-red-500 text-white hover:bg-red-600 border-none rounded-lg"
+                      className="btn btn-xs md:btn-sm bg-fuchsia-500 text-white hover:bg-fuchsia-600 border-none rounded-lg"
                     >
                       <FaTrash />
                     </button>
@@ -311,62 +409,155 @@ function PuntoVentaPage() {
             {/* PAGOS Y DESCUENTOS */}
             {/* PAGOS */}
             <div className="mt-3">
-              {/* JOIN 1 */}
-              <div className="flex flex-row gap-1">
-                <select
-                  defaultValue="Pick a font"
-                  className="select select-ghost rounded-none rounded-l-xl bg-success "
-                >
-                  <option disabled={true}>Tipo de Pago</option>
-                  <option>Efectivo</option>
-                  <option>Yape</option>
-                  <option>Plin</option>
-                  <option>Transferencia</option>
-                  <option>Agora</option>
-                </select>
+              {/* MAPA PAGOS 1 */}
 
-                <input
-                  type="date"
-                  className="input input-ghost rounded-none bg-purple-50 text-sm w-full sm:w-40"
-                  value={new Date().toISOString().split("T")[0]}
-                />
+              {pagos.map((pago) => (
+                <div key={pago.id} className="flex flex-row gap-0 mt-2">
+                  <button className="btn rounded-none rounded-l-xl bg-gradient-to-r from-lime-200 to-cyan-300 text-black border-none shadow-lg">
+                    <GrMoney />
+                  </button>
 
-                <input
-                  type="text"
-                  placeholder="Monto"
-                  className="input input-ghost rounded-none rounded-r-xl bg-purple-50 text-sm w-full sm:w-28"
-                />
-              </div>
+                  <select
+                    value={pago.tipo}
+                    onChange={(e) =>
+                      actualizarPago(pago.id, "tipo", e.target.value)
+                    }
+                    className="select rounded-none bg-purple-50 border-none shadow-lg focus:outline-none outline-none"
+                  >
+                    <option>Efectivo</option>
+                    <option>Yape</option>
+                    <option>Plin</option>
+                    <option>Transferencia</option>
+                    <option>Agora</option>
+                  </select>
+
+                  <input
+                    type="number"
+                    value={pago.monto}
+                    onChange={(e) =>
+                      actualizarPago(pago.id, "monto", e.target.value)
+                    }
+                    placeholder="Monto"
+                    className="input rounded-none bg-purple-50 text-sm w-full sm:w-28 border-none focus:outline-none outline-none shadow-lg"
+                  />
+
+                  <button
+                    onClick={() => eliminarPago(pago.id)}
+                    className="btn rounded-none rounded-r-xl bg-fuchsia-500 text-white border-none shadow-lg hover:bg-fuchsia-600"
+                  >
+                    <FaTrash />
+                  </button>
+                </div>
+              ))}
               {/* Añadir mas pagos */}
-              <div className="flex justify-end my-2">
-                <span className="text-xs font-bold hover:text-purple-600 cursor-pointer">
+              <div className="flex justify-end mt-4">
+                <span
+                  onClick={agregarPago}
+                  className="text-xs font-bold cursor-pointer"
+                >
                   + Añadir Pago
                 </span>
               </div>
             </div>
-            {/* DESCUENTOS */}
-            <div className="flex flex-row gap-1 mt-2">
-              <select
-                defaultValue="Pick a font"
-                className="select select-ghost rounded-none rounded-l-xl bg-error"
-              >
-                <option disabled={true}>Descuento</option>
-                <option>Monto S/.</option>
-                <option>Porcentual %</option>
-              </select>
 
-              <input
-                type="date"
-                className="input input-ghost rounded-none bg-purple-50 text-sm w-full sm:w-40"
-                value={new Date().toISOString().split("T")[0]}
-              />
+            {/* DESCUENTOS, PROPINAS, DELIVERY */}
+            {/* EXTRA */}
+            <div className="mt-3">
+              {/* MAPA EXTRA 1 */}
+              {extras.map((extra) => {
+                const estilo = getExtraStyle(extra.tipo);
 
-              <input
-                type="text"
-                placeholder="Monto"
-                className="input input-ghost rounded-none rounded-r-xl bg-purple-50 text-sm w-full sm:w-28"
-              />
+                return (
+                  <div key={extra.id} className="flex flex-row gap-0 mt-2">
+                    <button
+                      className={`btn rounded-none rounded-l-xl bg-gradient-to-r ${estilo.color} text-black border-none shadow-lg`}
+                    >
+                      {estilo.icon}
+                    </button>
+
+                    <select
+                      value={extra.tipo}
+                      onChange={(e) =>
+                        actualizarExtra(extra.id, "tipo", e.target.value)
+                      }
+                      className="select rounded-none bg-purple-50 border-none shadow-lg focus:outline-none outline-none"
+                    >
+                      <option>Descuento %</option>
+                      <option>Descuento S/</option>
+                      <option>Propina</option>
+                      <option>Delivery</option>
+                    </select>
+
+                    <input
+                      type="number"
+                      value={extra.monto}
+                      onChange={(e) => {
+                        let val = e.target.value;
+
+                        if (extra.tipo === "Descuento %" && val > 100) {
+                          val = 100;
+                        }
+
+                        actualizarExtra(extra.id, "monto", val);
+                      }}
+                      placeholder={
+                        extra.tipo === "Descuento %" ? "Porcentaje" : "Monto"
+                      }
+                      className="input rounded-none bg-purple-50 text-sm w-full sm:w-28 border-none shadow-lg focus:outline-none outline-none"
+                    />
+
+                    <button
+                      onClick={() => eliminarExtra(extra.id)}
+                      className="btn rounded-none rounded-r-xl bg-fuchsia-500 text-white border-none shadow-lg hover:bg-fuchsia-600"
+                    >
+                      <FaTrash />
+                    </button>
+                  </div>
+                );
+              })}
+              {/* Añadir mas pagos */}
+              <div className="flex justify-end mt-4">
+                <span
+                  onClick={agregarExtra}
+                  className="text-xs font-bold cursor-pointer"
+                >
+                  + Añadir Descuento, Propina, Delivery
+                </span>
+              </div>
             </div>
+
+            <div className="mt-2 text-sm space-y-1">
+              <div className="flex justify-between">
+                <span>Descuento</span>
+                <span>- S/ {descuentoTotal.toFixed(2)}</span>
+              </div>
+
+              <div className="flex justify-between">
+                <span>Propina</span>
+                <span>+ S/ {propinaTotal.toFixed(2)}</span>
+              </div>
+
+              <div className="flex justify-between">
+                <span>Delivery</span>
+                <span>+ S/ {deliveryTotal.toFixed(2)}</span>
+              </div>
+
+              <div className="flex justify-between font-bold text-lg mt-2">
+                <span>Total Final</span>
+                <span>S/ {totalFinal.toFixed(2)}</span>
+              </div>
+
+              <div className="flex justify-between">
+                <span>Pagado</span>
+                <span>S/ {totalPagado.toFixed(2)}</span>
+              </div>
+
+              <div className="flex justify-between">
+                <span>Vuelto</span>
+                <span>S/ {vuelto.toFixed(2)}</span>
+              </div>
+            </div>
+
             {/* BOTONES DE ACCIONES*/}
             <button className="btn w-full mt-4 rounded-xl bg-fuchsia-500 text-white border-none hover:bg-fuchsia-600">
               Cobrar venta
