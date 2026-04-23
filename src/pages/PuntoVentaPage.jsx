@@ -277,76 +277,9 @@ function PuntoVentaPage() {
 
           {/* CARRITO */}
           <div className="bg-white rounded-2xl shadow-md p-4 flex flex-col">
-            {/* BOLETA/FACTURA */}
-            <div className="mb-3">
-              {/* name of each tab group should be unique */}
-              <div className="tabs tabs-box rounded-xl bg-gradient-to-r from-lime-200 to-cyan-300 shadow-sm">
-                {/* TAB TIPO DE PAGO 1 */}
-                <input
-                  type="radio"
-                  name="my_tabs_6"
-                  className="tab rounded-lg font-bold"
-                  aria-label="Boleta Simple"
-                />
-                {/* TAB TIPO DE PAGO 2 */}
-                <input
-                  type="radio"
-                  name="my_tabs_6"
-                  className="tab rounded-lg font-bold"
-                  aria-label="Boleta Electrónica"
-                  defaultChecked
-                />
-                <div className="tab-content bg-base-100 border-base-300 p-2">
-                  <div className="flex flex-col gap-3">
-                    {/* BUSCADOR DE SUNAT BOLETAS */}
-                    <div className="flex items-center gap-3 mb-2 bg-purple-50 rounded-xl px-4 py-1">
-                      <FaSearch className="text-purple-500" />
-                      <input
-                        type="text"
-                        placeholder="Buscar Cliente"
-                        className="input input-ghost w-full focus:outline-none"
-                      />
-                      <IoMdClose className="text-purple-500 text-2xl cursor-pointer hover:text-purple-700" />
-                    </div>
-                    {/* AGREGAR USUARIO */}
-                    <div className="flex justify-end mb-1">
-                      <span className="text-xs font-bold hover:text-purple-600 cursor-pointer">
-                        + Nuevo Cliente
-                      </span>
-                    </div>
-                    {/* DATOS DE SUNAT */}
-                    <div className="flex flex-row gap-2">
-                      <FaRegUser className="text-xs" />
-                      <span className="text-xs">Nombre:</span>
-                      <span className="text-xs font-bold">
-                        JHEFERSON SANTIAGO BLANCO MARTIN
-                      </span>
-                    </div>
-                    <div className="flex flex-row gap-2">
-                      <AiOutlineIdcard className="text-xs" />
-                      <span className="text-xs">N° Documento:</span>
-                      <span className="text-xs font-bold">76045247</span>
-                    </div>
-                    <div className="flex flex-row gap-2">
-                      <GrLocation className="text-xs" />
-                      <span className="text-xs">Dirección:</span>
-                      <span className="text-xs font-bold">
-                        MZ K LT 17 VISTA ALEGRE - CARABAYLLO
-                      </span>
-                    </div>
-                  </div>
-                </div>
-                {/* TAB TIPO DE PAGO 3 */}
-                <input
-                  type="radio"
-                  name="my_tabs_6"
-                  className="tab rounded-lg font-bold"
-                  aria-label="Factura"
-                />
-                <div className="tab-content bg-base-100 border-base-300 p-6">
-                  Tab content 3
-                </div>
-              </div>
+            {/* TITULO DEL CARRITO */}
+            <div className="text-lg font-bold text-purple-800 mb-4">
+              Resumen de Compras
             </div>
             {/* RESUMEN DE COMPRAS */}
             <div className="flex-1 space-y-3 ">
@@ -400,7 +333,8 @@ function PuntoVentaPage() {
               ))}
             </div>
             {/* SUBTOTALES*/}
-            <div className="mt-4 border-t pt-4">
+            <div className="divider divider-primary"></div>
+            <div className="">
               <div className="flex justify-between text-lg font-bold text-purple-800">
                 <span>SubTotal</span>
                 <span>S/ {total.toFixed(2)}</span>
@@ -525,7 +459,7 @@ function PuntoVentaPage() {
                 </span>
               </div>
             </div>
-
+            <div className="divider divider-primary"></div>
             <div className="mt-2 text-sm space-y-1">
               <div className="flex justify-between">
                 <span>Descuento</span>

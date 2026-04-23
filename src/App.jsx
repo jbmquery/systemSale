@@ -11,13 +11,14 @@ import InventarioCategoriasPage from "./components/inventario/InventarioCategori
 import InventarioMarcasPage from "./components/inventario/InventarioMarcasPage";
 import InventarioUnidadesPage from "./components/inventario/InventarioUnidadesPage";
 import PuntoVentaPage from "./pages/PuntoVentaPage";
+import ProveedoresLayout from "./pages/ProveedoresLayout";
+import VentasLayout from "./pages/VentasLayout";
 
 function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
         <Routes>
-
           {/* 🔓 PUBLICA */}
           <Route path="/" element={<LoginPage />} />
 
@@ -55,6 +56,23 @@ function App() {
             }
           />
 
+          <Route
+            path="/proveedores"
+            element={
+              <PrivateRoute>
+                <ProveedoresLayout />
+              </PrivateRoute>
+            }
+          />
+
+          <Route
+            path="/ventas"
+            element={
+              <PrivateRoute>
+                <VentasLayout />
+              </PrivateRoute>
+            }
+          />
         </Routes>
       </BrowserRouter>
     </AuthProvider>
