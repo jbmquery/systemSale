@@ -95,9 +95,9 @@ function ProductosModal({
 
   const handleSubmit = async () => {
     await onGuardar({
-      codigo: form.codigo,
+      codigo: form.codigo || "",
       producto: form.producto?.toUpperCase(),
-      abreviacion: form.abreviacion?.toUpperCase(),
+      abreviacion: form.abreviacion?.toUpperCase() || "",
       categoria: form.categoria,
       marca: form.marca,
       unidad: form.unidad,

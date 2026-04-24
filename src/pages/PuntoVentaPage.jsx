@@ -450,10 +450,26 @@ function PuntoVentaPage() {
                     {p.producto}
                   </h3>
 
-                  <p className="text-sm md:text-base text-fuchsia-600 font-bold mt-1">
-                    S/ {p.venta.toFixed(2)}
-                  </p>
+                  <div className="flex items-center gap-2 mt-1">
+                    {p.rebaja && p.rebaja !== 0 ? (
+                      <>
+                        {/* Precio original tachado */}
+                        <p className="text-xs md:text-base text-gray-500 line-through">
+                          S/ {p.venta.toFixed(2)}
+                        </p>
 
+                        {/* Precio con rebaja */}
+                        <p className="text-xs md:text-base text-fuchsia-600 font-bold">
+                          S/ {p.rebaja.toFixed(2)}
+                        </p>
+                      </>
+                    ) : (
+                      /* Precio normal */
+                      <p className="text-xs md:text-base text-fuchsia-600 font-bold">
+                        S/ {p.venta.toFixed(2)}
+                      </p>
+                    )}
+                  </div>
                   <p className="text-xs text-gray-500 mt-1">COD: {p.codigo}</p>
                 </div>
               ))}
@@ -663,17 +679,25 @@ function PuntoVentaPage() {
 
               <div className="flex justify-between font-bold text-lg mt-2">
                 <span className="font-bold text-lg">Total Final</span>
-                <span className="font-bold text-lg">S/ {totalFinal.toFixed(2)}</span>
+                <span className="font-bold text-lg">
+                  S/ {totalFinal.toFixed(2)}
+                </span>
               </div>
 
               <div className="flex justify-between">
                 <span className="font-bold text-lg">Pagado</span>
-                <span className="font-bold text-lg">S/ {totalPagado.toFixed(2)}</span>
+                <span className="font-bold text-lg">
+                  S/ {totalPagado.toFixed(2)}
+                </span>
               </div>
 
               <div className="flex justify-between mb-4">
-                <span className="font-bold text-2xl text-purple-500">Vuelto</span>
-                <span className="font-bold text-2xl text-purple-500">S/ {vuelto.toFixed(2)}</span>
+                <span className="font-bold text-2xl text-purple-500">
+                  Vuelto
+                </span>
+                <span className="font-bold text-2xl text-purple-500">
+                  S/ {vuelto.toFixed(2)}
+                </span>
               </div>
             </div>
 
