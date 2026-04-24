@@ -1,19 +1,29 @@
 import { useState, useEffect } from "react";
 import Navbar from "../components/Navbar";
 import Sidebar from "../components/Sidebar";
-import { FaSearch, FaTrash } from "react-icons/fa";
-import { IoCashOutline } from "react-icons/io5";
-import { FaBarcode } from "react-icons/fa6";
-import { FaRegUser } from "react-icons/fa6";
-import { AiOutlineIdcard } from "react-icons/ai";
-import { GrLocation } from "react-icons/gr";
-import { IoMdClose } from "react-icons/io";
-import { collection, onSnapshot } from "firebase/firestore";
+
 import { db } from "../firebase/config";
-import { IoMdAdd } from "react-icons/io";
-import { IoMdRemove } from "react-icons/io";
-import { GrMoney } from "react-icons/gr";
-import { FaTruck, FaGift, FaPercentage } from "react-icons/fa";
+import {
+  FaSearch,
+  FaTrash,
+  FaTruck,
+  FaGift,
+  FaPercentage,
+} from "react-icons/fa";
+import { IoCashOutline } from "react-icons/io5";
+import { FaBarcode, FaRegUser } from "react-icons/fa6";
+import { AiOutlineIdcard } from "react-icons/ai";
+import { GrLocation, GrMoney } from "react-icons/gr";
+import { IoMdAdd, IoMdRemove, IoMdClose } from "react-icons/io";
+
+import {
+  collection,
+  onSnapshot,
+  addDoc,
+  Timestamp,
+  doc,
+  runTransaction,
+} from "firebase/firestore";
 
 function PuntoVentaPage() {
   const [sidebarAbierto, setSidebarAbierto] = useState(false);
@@ -195,6 +205,144 @@ function PuntoVentaPage() {
       color: "from-gray-300 to-gray-400",
       icon: <GrMoney />,
     };
+  };
+
+  const cobrarVenta = async () => {
+    if (carrito.length === 0) return alert("Carrito vacío");
+
+    // 🚨 VALIDAR STOCK
+    const errores = validarStock();
+
+    if (errores.length > 0) {
+      const mensaje = errores
+        .map((e) => `${e.producto} solo tiene ${e.stock} en stock`)
+        .join("\n");
+
+      alert(mensaje);
+      return;
+    }
+
+    try {
+      await runTransaction(db, async (transaction) => {
+        // 🧾 CREAR VENTA
+        const ventaRef = doc(collection(db, "ventas"));
+
+        await transaction.set(ventaRef, {
+          tipo_comprobante: "Boleta Simple",
+          num_venta: Date.now(),
+          uid_usuario: "demo-user", // luego lo conectas con auth
+          fecha_venta: Timestamp.now(),
+          subtotal: total,
+          descuento: descuentoTotal,
+          propina: propinaTotal,
+          delivery: deliveryTotal,
+          pagado: totalPagado,
+          vuelto: vuelto,
+          igv: total * 0.18,
+          estado: "pagado",
+        });
+
+        // 🛒 DETALLE
+        for (const item of carrito) {
+          const detalleRef = doc(
+            collection(db, "ventas", ventaRef.id, "detalle"),
+          );
+
+          await transaction.set(detalleRef, {
+            ...item,
+            vence: item.vence || null,
+          });
+        }
+
+        // 💳 PAGOS
+        for (const pago of pagos) {
+          if (!pago.monto) continue;
+
+          const pagoRef = doc(collection(db, "ventas", ventaRef.id, "pagos"));
+
+          await transaction.set(pagoRef, {
+            modo_pago: pago.tipo,
+            monto: parseFloat(pago.monto),
+          });
+        }
+
+        // 🎯 EXTRAS
+        for (const extra of extras) {
+          if (!extra.monto) continue;
+
+          const extraRef = doc(collection(db, "ventas", ventaRef.id, "extras"));
+
+          await transaction.set(extraRef, {
+            modo_extra: extra.tipo,
+            monto: parseFloat(extra.monto),
+          });
+        }
+
+        // 📦 DESCONTAR STOCK (FIFO por vencimiento)
+        for (const item of carrito) {
+          let cantidadRestante = item.cantidad;
+
+          const productosOrdenados = productos
+            .filter((p) => p.codigo === item.codigo)
+            .sort((a, b) => {
+              const va = a.vence?.seconds || 9999999999;
+              const vb = b.vence?.seconds || 9999999999;
+              return va - vb;
+            });
+
+          for (const prod of productosOrdenados) {
+            if (cantidadRestante <= 0) break;
+
+            const ref = doc(db, "productos", prod.id);
+            const stockActual = prod.stock || 0;
+
+            if (stockActual <= 0) continue;
+
+            const descontar = Math.min(stockActual, cantidadRestante);
+
+            transaction.update(ref, {
+              stock: stockActual - descontar,
+            });
+
+            cantidadRestante -= descontar;
+          }
+        }
+      });
+
+      // 🧹 LIMPIAR TODO
+      setCarrito([]);
+      setPagos([{ id: Date.now(), tipo: "Efectivo", monto: "" }]);
+      setExtras([]);
+
+      alert("Venta registrada correctamente ✅");
+    } catch (error) {
+      console.error(error);
+      alert("Error al cobrar ❌");
+    }
+  };
+
+  const validarStock = () => {
+    let errores = [];
+
+    carrito.forEach((item) => {
+      const productosMismoCodigo = productos.filter(
+        (p) => p.codigo === item.codigo,
+      );
+
+      const stockTotal = productosMismoCodigo.reduce(
+        (acc, p) => acc + (p.stock || 0),
+        0,
+      );
+
+      if (item.cantidad > stockTotal) {
+        errores.push({
+          producto: item.producto,
+          stock: stockTotal,
+        });
+      }
+    });
+
+    return errores;
   };
 
   return (
@@ -493,7 +641,7 @@ function PuntoVentaPage() {
             </div>
 
             {/* BOTONES DE ACCIONES*/}
-            <button className="btn w-full mt-4 rounded-xl bg-fuchsia-500 text-white border-none hover:bg-fuchsia-600">
+            <button onClick={cobrarVenta} className="btn w-full mt-4 rounded-xl bg-fuchsia-500 text-white border-none hover:bg-fuchsia-600">
               Cobrar venta
             </button>
           </div>
