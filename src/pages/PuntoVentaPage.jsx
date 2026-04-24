@@ -430,7 +430,7 @@ function PuntoVentaPage() {
                   onClick={() =>
                     agregarProducto({
                       producto: p.producto,
-                      venta: p.venta,
+                      venta: p.rebaja && p.rebaja !== 0 ? p.rebaja : p.venta,
                       codigo: p.codigo,
                     })
                   }
