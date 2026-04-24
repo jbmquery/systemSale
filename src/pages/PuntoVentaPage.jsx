@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import Navbar from "../components/Navbar";
 import Sidebar from "../components/Sidebar";
-
+import { getAuth } from "firebase/auth";
 import { db } from "../firebase/config";
 import {
   FaSearch,
@@ -30,6 +30,7 @@ function PuntoVentaPage() {
   const [productos, setProductos] = useState([]);
   const [busqueda, setBusqueda] = useState("");
   const [carrito, setCarrito] = useState([]);
+  const [alerta, setAlerta] = useState(null);
 
   // 💳 PAGOS DINÁMICOS
   const [pagos, setPagos] = useState([
@@ -210,6 +211,11 @@ function PuntoVentaPage() {
   const cobrarVenta = async () => {
     if (carrito.length === 0) return alert("Carrito vacío");
 
+    if (vuelto < -0.01) {
+      mostrarAlerta("El monto pagado es insuficiente", "error");
+      return;
+    }
+
     // 🚨 VALIDAR STOCK
     const errores = validarStock();
 
@@ -218,19 +224,42 @@ function PuntoVentaPage() {
         .map((e) => `${e.producto} solo tiene ${e.stock} en stock`)
         .join("\n");
 
-      alert(mensaje);
+      mostrarAlerta(mensaje, "error");
       return;
     }
 
     try {
+      const auth = getAuth();
+      const user = auth.currentUser;
+
+      if (!user) {
+        mostrarAlerta("Usuario no autenticado", "error");
+        return;
+      }
       await runTransaction(db, async (transaction) => {
+        // 🧾 CREAR VENTA
+        // 📊 CONTADOR DE VENTAS
+        const contadorRef = doc(db, "contadores", "ventas");
+        const contadorSnap = await transaction.get(contadorRef);
+
+        if (!contadorSnap.exists()) {
+          throw new Error("No existe el contador de ventas");
+        }
+
+        const numeroActual = contadorSnap.data().numero;
+
+        // 🔢 Incrementar contador
+        transaction.update(contadorRef, {
+          numero: numeroActual + 1,
+        });
+
         // 🧾 CREAR VENTA
         const ventaRef = doc(collection(db, "ventas"));
 
-        await transaction.set(ventaRef, {
+        transaction.set(ventaRef, {
           tipo_comprobante: "Boleta Simple",
-          num_venta: Date.now(),
-          uid_usuario: "demo-user", // luego lo conectas con auth
+          num_venta: numeroActual,
+          uid_usuario: user.uid, // luego lo conectas con auth
           fecha_venta: Timestamp.now(),
           subtotal: total,
           descuento: descuentoTotal,
@@ -238,7 +267,7 @@ function PuntoVentaPage() {
           delivery: deliveryTotal,
           pagado: totalPagado,
           vuelto: vuelto,
-          igv: total * 0.18,
+          igv: 0.0,
           estado: "pagado",
         });
 
@@ -314,10 +343,10 @@ function PuntoVentaPage() {
       setPagos([{ id: Date.now(), tipo: "Efectivo", monto: "" }]);
       setExtras([]);
 
-      alert("Venta registrada correctamente ✅");
+      mostrarAlerta("Venta registrada correctamente ✅");
     } catch (error) {
       console.error(error);
-      alert("Error al cobrar ❌");
+      mostrarAlerta("Error al cobrar ❌", "error");
     }
   };
 
@@ -343,6 +372,14 @@ function PuntoVentaPage() {
     });
 
     return errores;
+  };
+
+  const mostrarAlerta = (mensaje, tipo = "success") => {
+    setAlerta({ mensaje, tipo });
+
+    setTimeout(() => {
+      setAlerta(null);
+    }, 3000);
   };
 
   return (
@@ -625,23 +662,36 @@ function PuntoVentaPage() {
               </div>
 
               <div className="flex justify-between font-bold text-lg mt-2">
-                <span>Total Final</span>
-                <span>S/ {totalFinal.toFixed(2)}</span>
+                <span className="font-bold text-lg">Total Final</span>
+                <span className="font-bold text-lg">S/ {totalFinal.toFixed(2)}</span>
               </div>
 
               <div className="flex justify-between">
-                <span>Pagado</span>
-                <span>S/ {totalPagado.toFixed(2)}</span>
+                <span className="font-bold text-lg">Pagado</span>
+                <span className="font-bold text-lg">S/ {totalPagado.toFixed(2)}</span>
               </div>
 
-              <div className="flex justify-between">
-                <span>Vuelto</span>
-                <span>S/ {vuelto.toFixed(2)}</span>
+              <div className="flex justify-between mb-4">
+                <span className="font-bold text-2xl text-purple-500">Vuelto</span>
+                <span className="font-bold text-2xl text-purple-500">S/ {vuelto.toFixed(2)}</span>
               </div>
             </div>
 
+            {alerta && (
+              <div
+                className={`alert shadow-lg mb-1 ${
+                  alerta.tipo === "error" ? "alert-error" : "alert-success"
+                }`}
+              >
+                <span>{alerta.mensaje}</span>
+              </div>
+            )}
+
             {/* BOTONES DE ACCIONES*/}
-            <button onClick={cobrarVenta} className="btn w-full mt-4 rounded-xl bg-fuchsia-500 text-white border-none hover:bg-fuchsia-600">
+            <button
+              onClick={cobrarVenta}
+              className="btn w-full mt-2 rounded-xl bg-fuchsia-500 text-white border-none hover:bg-fuchsia-600"
+            >
               Cobrar venta
             </button>
           </div>
