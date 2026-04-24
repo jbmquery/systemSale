@@ -116,6 +116,7 @@ function InventarioProductosPage() {
                 <th>Unidad</th>
                 <th>S/ Compra</th>
                 <th>S/ Venta</th>
+                <th>S/ Rebaja</th>
                 <th>Stock</th>
                 <th>Lote</th>
                 <th>Vence</th>
@@ -139,6 +140,7 @@ function InventarioProductosPage() {
                   <td>{p.unidad}</td>
                   <td>{p.compra.toFixed(2)}</td>
                   <td>{p.venta.toFixed(2)}</td>
+                  <td>{p.rebaja.toFixed(2)}</td>
                   <td>{p.stock}</td>
                   <td>{p.lote}</td>
                   <td>

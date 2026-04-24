@@ -16,11 +16,13 @@ function ProductosModal({
   const [form, setForm] = useState({
     codigo: "",
     producto: "",
+    abreviacion: "",
     categoria: "",
     marca: "",
     unidad: "",
     compra: "",
     venta: "",
+    rebaja: "",
     stock: "",
     lote: "",
     vence: "",
@@ -68,11 +70,13 @@ function ProductosModal({
       setForm({
         codigo: "",
         producto: "",
+        abreviacion: "",
         categoria: "",
         marca: "",
         unidad: "",
         compra: "",
         venta: "",
+        rebaja: "",
         stock: "",
         lote: "",
         vence: "",
@@ -89,23 +93,25 @@ function ProductosModal({
     });
   };
 
-const handleSubmit = async () => {
-  await onGuardar({
-    codigo: form.codigo,
-    producto: form.producto?.toUpperCase(),
-    categoria: form.categoria,
-    marca: form.marca,
-    unidad: form.unidad,
-    compra: parseFloat(form.compra),
-    venta: parseFloat(form.venta),
-    stock: parseInt(form.stock),
-    lote: form.lote,
-    vence: form.vence ? new Date(form.vence) : null,
-    estado: form.estado,
-  });
+  const handleSubmit = async () => {
+    await onGuardar({
+      codigo: form.codigo,
+      producto: form.producto?.toUpperCase(),
+      abreviacion: form.abreviacion?.toUpperCase(),
+      categoria: form.categoria,
+      marca: form.marca,
+      unidad: form.unidad,
+      compra: parseFloat(form.compra),
+      venta: parseFloat(form.venta),
+      rebaja: parseFloat(form.rebaja) || 0.00,
+      stock: parseInt(form.stock),
+      lote: form.lote,
+      vence: form.vence ? new Date(form.vence) : null,
+      estado: form.estado,
+    });
 
-  cerrar();
-};
+    cerrar();
+  };
 
   return (
     <>
@@ -160,7 +166,7 @@ const handleSubmit = async () => {
                 placeholder="123456789"
                 value={form.codigo}
                 onChange={handleChange}
-                className="input input-bordered w-full rounded-none rounded-r-2xl"
+                className="input input-bordered w-full rounded-none rounded-r-2xl focus:outline-none"
               />
             </div>
           </div>
@@ -173,9 +179,23 @@ const handleSubmit = async () => {
             <input
               name="producto"
               value={form.producto}
-              placeholder="Ejm: Guantes"
+              placeholder="Ejm: PAPEL HIGIENICO NOBLE PK 49 ROLLOS"
               onChange={handleChange}
-              className="input input-bordered w-full rounded-2xl"
+              className="input input-bordered w-full rounded-2xl focus:outline-none"
+            />
+          </div>
+
+          {/* ABREVIACION DEL PRODUCTO */}
+          <div className="flex flex-col gap-1">
+            <label className="text-sm font-semibold text-purple-700">
+              Abreviación
+            </label>
+            <input
+              name="abreviacion"
+              value={form.abreviacion}
+              placeholder="Ejm: PH NOBLE PK 49 ROLLOS"
+              onChange={handleChange}
+              className="input input-bordered w-full rounded-2xl focus:outline-none"
             />
           </div>
 
@@ -189,7 +209,7 @@ const handleSubmit = async () => {
                 name="categoria"
                 value={form.categoria}
                 onChange={handleChange}
-                className="select select-bordered rounded-2xl"
+                className="select select-bordered rounded-2xl "
               >
                 <option value="">Categoría</option>
                 {categorias.map((c, i) => (
@@ -244,7 +264,7 @@ const handleSubmit = async () => {
                 placeholder="0.00"
                 onChange={handleChange}
                 value={form.compra}
-                className="input input-bordered rounded-2xl"
+                className="input input-bordered rounded-2xl focus:outline-none"
               />
             </div>
             <div className="flex flex-col gap-1">
@@ -256,7 +276,19 @@ const handleSubmit = async () => {
                 placeholder="0.00"
                 onChange={handleChange}
                 value={form.venta}
-                className="input input-bordered rounded-2xl"
+                className="input input-bordered rounded-2xl focus:outline-none"
+              />
+            </div>
+            <div className="flex flex-col gap-1">
+              <label className="text-sm font-semibold text-purple-700">
+                S/ Rebaja
+              </label>
+              <input
+                name="rebaja"
+                placeholder="0.00"
+                onChange={handleChange}
+                value={form.rebaja}
+                className="input input-bordered rounded-2xl focus:outline-none"
               />
             </div>
             <div className="flex flex-col gap-1">
@@ -268,10 +300,15 @@ const handleSubmit = async () => {
                 placeholder="0"
                 onChange={handleChange}
                 value={form.stock}
-                className="input input-bordered rounded-2xl"
+                className="input input-bordered rounded-2xl focus:outline-none"
               />
             </div>
-            <div className="flex flex-col gap-1">
+          </div>
+
+          {/* FECHA Y ESTADO*/}
+          <div className="grid grid-cols-8 gap-1">
+            {/* LOTE */}
+            <div className="flex flex-col gap-1 col-span-2">
               <label className="text-sm font-semibold text-purple-700">
                 Lote
               </label>
@@ -280,15 +317,11 @@ const handleSubmit = async () => {
                 placeholder="L001"
                 onChange={handleChange}
                 value={form.lote}
-                className="input input-bordered rounded-2xl"
+                className="input input-bordered rounded-2xl focus:outline-none"
               />
             </div>
-          </div>
-
-          {/* FECHA Y ESTADO*/}
-          <div className="grid grid-cols-2 gap-1">
             {/* FECHA */}
-            <div className="flex flex-col gap-1">
+            <div className="flex flex-col gap-1 col-span-4">
               <label className="text-sm font-semibold text-purple-700">
                 Fecha Vencimiento
               </label>
@@ -297,11 +330,11 @@ const handleSubmit = async () => {
                 name="vence"
                 value={form.vence}
                 onChange={handleChange}
-                className="input input-bordered w-full rounded-2xl"
+                className="input input-bordered w-full rounded-2xl focus:outline-none"
               />
             </div>
             {/* ESTADO */}
-            <div className="flex flex-col gap-1">
+            <div className="flex flex-col gap-1 col-span-2">
               <label className="text-sm font-semibold text-purple-700">
                 Estado
               </label>
@@ -310,7 +343,7 @@ const handleSubmit = async () => {
                 name="estado"
                 value={form.estado}
                 onChange={handleChange}
-                className="select select-bordered rounded-2xl"
+                className="select select-bordered rounded-2xl focus:outline-none"
               >
                 <option>Activo</option>
                 <option>Inactivo</option>
