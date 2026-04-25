@@ -73,11 +73,15 @@ function PuntoVentaPage() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [carrito]);
 
-  const productosFiltrados = productos.filter(
-    (p) =>
+  const productosFiltrados = productos.filter((p) => {
+    const coincideBusqueda =
       p.producto?.toLowerCase().includes(busqueda.toLowerCase()) ||
-      p.codigo?.includes(busqueda),
-  );
+      p.codigo?.includes(busqueda);
+
+    const esActivo = p.estado === "Activo";
+
+    return coincideBusqueda && esActivo;
+  });
 
   const agregarProducto = (producto) => {
     setCarrito((prev) => {
@@ -424,55 +428,71 @@ function PuntoVentaPage() {
 
             {/* LISTA DE PRODUCTOS */}
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-              {productosFiltrados.map((p) => (
-                <div
-                  key={p.id}
-                  onClick={() =>
-                    agregarProducto({
-                      producto: p.producto,
-                      venta: p.rebaja && p.rebaja !== 0 ? p.rebaja : p.venta,
-                      codigo: p.codigo,
-                    })
-                  }
-                  className="bg-purple-50 hover:bg-purple-100 cursor-pointer rounded-xl p-4 shadow-sm transition"
-                >
-                  {/* IMAGEN */}
-                  <div className="w-full h-28 bg-white rounded-lg flex items-center justify-center mb-3 overflow-hidden">
-                    <img
-                      src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTKnKnw0MtmVH5_-A-wrEh5OiTSL3lu_5MZZA&s"
-                      alt={p.producto}
-                      className="h-full object-contain"
-                    />
-                  </div>
+              {productosFiltrados.map((p) => {
+                const sinStock = (p.stock || 0) <= 0;
 
-                  {/* DATOS */}
-                  <h3 className="text-xs md:text-sm font-bold text-purple-800">
-                    {p.producto}
-                  </h3>
+                return (
+                  <div
+                    key={p.id}
+                    onClick={() => {
+                      if (sinStock) return;
 
-                  <div className="flex items-center gap-2 mt-1">
-                    {p.rebaja && p.rebaja !== 0 ? (
-                      <>
-                        {/* Precio original tachado */}
-                        <p className="text-xs md:text-base text-gray-500 line-through">
-                          S/ {p.venta.toFixed(2)}
-                        </p>
+                      agregarProducto({
+                        producto: p.producto,
+                        venta: p.rebaja && p.rebaja !== 0 ? p.rebaja : p.venta,
+                        codigo: p.codigo,
+                      });
+                    }}
+                    className={`rounded-xl p-4 shadow-sm transition 
+        ${
+          sinStock
+            ? "bg-gray-200 opacity-60 cursor-not-allowed"
+            : "bg-purple-50 hover:bg-purple-100 cursor-pointer"
+        }`}
+                  >
+                    {/* IMAGEN */}
+                    <div className="w-full h-28 bg-white rounded-lg flex items-center justify-center mb-3 overflow-hidden">
+                      <img
+                        src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTKnKnw0MtmVH5_-A-wrEh5OiTSL3lu_5MZZA&s"
+                        alt={p.producto}
+                        className="h-full object-contain"
+                      />
+                    </div>
 
-                        {/* Precio con rebaja */}
-                        <p className="text-xs md:text-base text-fuchsia-600 font-bold">
-                          S/ {p.rebaja.toFixed(2)}
-                        </p>
-                      </>
-                    ) : (
-                      /* Precio normal */
-                      <p className="text-xs md:text-base text-fuchsia-600 font-bold">
-                        S/ {p.venta.toFixed(2)}
+                    {/* DATOS */}
+                    <h3 className="text-xs md:text-sm font-bold text-purple-800">
+                      {p.producto}
+                    </h3>
+
+                    {sinStock && (
+                      <p className="text-xs text-red-500 font-bold mt-1">
+                        Sin stock
                       </p>
                     )}
+
+                    <div className="flex items-center gap-2 mt-1">
+                      {p.rebaja && p.rebaja !== 0 ? (
+                        <>
+                          <p className="text-xs md:text-base text-gray-500 line-through">
+                            S/ {p.venta.toFixed(2)}
+                          </p>
+                          <p className="text-xs md:text-base text-fuchsia-600 font-bold">
+                            S/ {p.rebaja.toFixed(2)}
+                          </p>
+                        </>
+                      ) : (
+                        <p className="text-xs md:text-base text-fuchsia-600 font-bold">
+                          S/ {p.venta.toFixed(2)}
+                        </p>
+                      )}
+                    </div>
+
+                    <p className="text-xs text-gray-500 mt-1">
+                      COD: {p.codigo}
+                    </p>
                   </div>
-                  <p className="text-xs text-gray-500 mt-1">COD: {p.codigo}</p>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
 

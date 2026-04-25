@@ -10,6 +10,16 @@ import { collection, onSnapshot } from "firebase/firestore";
 function VentasVentasPage() {
   const [modalAbierto, setModalAbierto] = useState(false);
   const [ventas, setVentas] = useState([]);
+  const [busqueda, setBusqueda] = useState("");
+  const [fechaDesde, setFechaDesde] = useState("");
+  const [fechaHasta, setFechaHasta] = useState("");
+  const [ordenSubtotal, setOrdenSubtotal] = useState(null); // "asc" | "desc" | null
+
+  const [filtroComprobante, setFiltroComprobante] = useState([]);
+  const [filtroUsuario, setFiltroUsuario] = useState([]);
+  const [filtroEstado, setFiltroEstado] = useState([]);
+
+  const [menuAbierto, setMenuAbierto] = useState(null); // "comprobante", "usuario", "estado"
 
   // 🔥 TRAER VENTAS EN TIEMPO REAL
   useEffect(() => {
@@ -38,6 +48,67 @@ function VentasVentasPage() {
       minute: "2-digit",
     });
   };
+  const tiposComprobante = [
+    ...new Set(ventas.map((v) => v.tipo_comprobante).filter(Boolean)),
+  ];
+  const usuarios = [...new Set(ventas.map((v) => v.usuario || "caja1"))];
+  const estados = [...new Set(ventas.map((v) => v.estado).filter(Boolean))];
+
+  const ventasFiltradas = ventas
+    .filter((v) => {
+      const texto = busqueda.toLowerCase();
+
+      const coincideBusqueda =
+        v.num_venta?.toString().includes(texto) ||
+        v.tipo_comprobante?.toLowerCase().includes(texto) ||
+        v.estado?.toLowerCase().includes(texto) ||
+        v.subtotal?.toString().includes(texto) ||
+        formatearFecha(v.fecha_venta).toLowerCase().includes(texto);
+
+      let cumpleFecha = true;
+
+      if (v.fecha_venta) {
+        const fechaVenta = v.fecha_venta.toDate();
+
+        if (fechaDesde) {
+          const desde = new Date(fechaDesde);
+          desde.setHours(0, 0, 0, 0);
+          if (fechaVenta < desde) cumpleFecha = false;
+        }
+
+        if (fechaHasta) {
+          const hasta = new Date(fechaHasta);
+          hasta.setHours(23, 59, 59, 999);
+          if (fechaVenta > hasta) cumpleFecha = false;
+        }
+      }
+
+      const cumpleComprobante =
+        filtroComprobante.length === 0 ||
+        filtroComprobante.includes(v.tipo_comprobante);
+
+      const cumpleUsuario =
+        filtroUsuario.length === 0 ||
+        filtroUsuario.includes(v.usuario || "caja1");
+
+      const cumpleEstado =
+        filtroEstado.length === 0 || filtroEstado.includes(v.estado);
+
+      return (
+        coincideBusqueda &&
+        cumpleFecha &&
+        cumpleComprobante &&
+        cumpleUsuario &&
+        cumpleEstado
+      );
+    })
+    .sort((a, b) => {
+      if (!ordenSubtotal) return 0;
+
+      return ordenSubtotal === "asc"
+        ? a.subtotal - b.subtotal
+        : b.subtotal - a.subtotal;
+    });
 
   return (
     <>
@@ -57,6 +128,8 @@ function VentasVentasPage() {
             <input
               type="text"
               placeholder="Buscar producto..."
+              value={busqueda}
+              onChange={(e) => setBusqueda(e.target.value)}
               className="input input-ghost w-full focus:outline-none text-sm"
             />
           </div>
@@ -68,12 +141,21 @@ function VentasVentasPage() {
               <span className="text-xs sm:text-sm whitespace-nowrap text-purple-500 font-semibold">
                 Desde
               </span>
-              <div className="bg-white rounded-2xl shadow-md px-2 py-1 flex items-center gap-1 w-full sm:w-auto">
+              <div className="bg-white rounded-2xl shadow-md pr-2 py-1 flex items-center gap-0 w-full sm:w-auto">
                 <input
                   type="date"
                   name="desde"
+                  value={fechaDesde}
+                  onChange={(e) => setFechaDesde(e.target.value)}
                   className="input input-ghost w-full focus:outline-none text-xs sm:text-sm"
                 />
+
+                {fechaDesde && (
+                  <IoClose
+                    onClick={() => setFechaDesde("")}
+                    className="text-purple-500 text-xl cursor-pointer hover:scale-110 transition"
+                  />
+                )}
               </div>
             </div>
 
@@ -82,12 +164,21 @@ function VentasVentasPage() {
               <span className="text-xs sm:text-sm whitespace-nowrap text-purple-500 font-semibold">
                 Hasta
               </span>
-              <div className="bg-white rounded-2xl shadow-md px-2 py-1 flex items-center gap-1 w-full sm:w-auto">
+              <div className="bg-white rounded-2xl shadow-md pr-2 py-1 flex items-center gap-1 w-full sm:w-auto">
                 <input
                   type="date"
                   name="hasta"
+                  value={fechaHasta}
+                  onChange={(e) => setFechaHasta(e.target.value)}
                   className="input input-ghost w-full focus:outline-none text-xs sm:text-sm"
                 />
+
+                {fechaHasta && (
+                  <IoClose
+                    onClick={() => setFechaHasta("")}
+                    className="text-purple-500 text-xl cursor-pointer hover:scale-110 transition"
+                  />
+                )}
               </div>
             </div>
           </div>
@@ -100,21 +191,150 @@ function VentasVentasPage() {
               <tr>
                 <th>N° Venta</th>
                 <th>Cliente</th>
-                <th>Subtotal</th>
+                <th
+                  className="cursor-pointer select-none"
+                  onClick={() => {
+                    if (ordenSubtotal === "asc") setOrdenSubtotal("desc");
+                    else if (ordenSubtotal === "desc") setOrdenSubtotal(null);
+                    else setOrdenSubtotal("asc");
+                  }}
+                >
+                  Subtotal{" "}
+                  {ordenSubtotal === "asc"
+                    ? "↑"
+                    : ordenSubtotal === "desc"
+                      ? "↓"
+                      : ""}
+                </th>
                 <th>Fecha de Pago</th>
-                <th>Tipo de Comprobante</th>
-                <th>Usuario</th>
-                <th>Estado</th>
+                <th className="relative">
+                  <div
+                    onClick={() =>
+                      setMenuAbierto(
+                        menuAbierto === "comprobante" ? null : "comprobante",
+                      )
+                    }
+                    className="cursor-pointer"
+                  >
+                    Tipo de Comprobante ⏷
+                  </div>
+
+                  {menuAbierto === "comprobante" && (
+                    <div className="absolute z-50 bg-white shadow-lg rounded-lg p-2 mt-2 text-left">
+                      {tiposComprobante.map((tipo) => (
+                        <label key={tipo} className="flex gap-2 text-xs">
+                          <input
+                            type="checkbox"
+                            checked={filtroComprobante.includes(tipo)}
+                            onChange={() => {
+                              setFiltroComprobante((prev) =>
+                                prev.includes(tipo)
+                                  ? prev.filter((t) => t !== tipo)
+                                  : [...prev, tipo],
+                              );
+                            }}
+                          />
+                          {tipo}
+                        </label>
+                      ))}
+
+                      <button
+                        onClick={() => setFiltroComprobante([])}
+                        className="text-red-500 text-xs mt-2"
+                      >
+                        Limpiar
+                      </button>
+                    </div>
+                  )}
+                </th>
+                <th className="relative">
+                  <div
+                    onClick={() =>
+                      setMenuAbierto(
+                        menuAbierto === "usuario" ? null : "usuario",
+                      )
+                    }
+                    className="cursor-pointer"
+                  >
+                    Usuario ⏷
+                  </div>
+
+                  {menuAbierto === "usuario" && (
+                    <div className="absolute z-50 bg-white shadow-lg rounded-lg p-2 mt-2 text-left">
+                      {usuarios.map((u) => (
+                        <label key={u} className="flex gap-2 text-xs">
+                          <input
+                            type="checkbox"
+                            checked={filtroUsuario.includes(u)}
+                            onChange={() => {
+                              setFiltroUsuario((prev) =>
+                                prev.includes(u)
+                                  ? prev.filter((x) => x !== u)
+                                  : [...prev, u],
+                              );
+                            }}
+                          />
+                          {u}
+                        </label>
+                      ))}
+
+                      <button
+                        onClick={() => setFiltroUsuario([])}
+                        className="text-red-500 text-xs mt-2"
+                      >
+                        Limpiar
+                      </button>
+                    </div>
+                  )}
+                </th>
+                <th className="relative">
+                  <div
+                    onClick={() =>
+                      setMenuAbierto(menuAbierto === "estado" ? null : "estado")
+                    }
+                    className="cursor-pointer"
+                  >
+                    Estado ⏷
+                  </div>
+
+                  {menuAbierto === "estado" && (
+                    <div className="absolute z-50 bg-white shadow-lg rounded-lg p-2 mt-2 text-left">
+                      {estados.map((e) => (
+                        <label key={e} className="flex gap-2 text-xs">
+                          <input
+                            type="checkbox"
+                            checked={filtroEstado.includes(e)}
+                            onChange={() => {
+                              setFiltroEstado((prev) =>
+                                prev.includes(e)
+                                  ? prev.filter((x) => x !== e)
+                                  : [...prev, e],
+                              );
+                            }}
+                          />
+                          {e}
+                        </label>
+                      ))}
+
+                      <button
+                        onClick={() => setFiltroEstado([])}
+                        className="text-red-500 text-xs mt-2"
+                      >
+                        Limpiar
+                      </button>
+                    </div>
+                  )}
+                </th>
               </tr>
             </thead>
 
             <tbody className="text-center">
-              {ventas.length === 0 ? (
+              {ventasFiltradas.length === 0 ? (
                 <tr>
                   <td colSpan="7">No hay ventas</td>
                 </tr>
               ) : (
-                ventas.map((v) => (
+                ventasFiltradas.map((v) => (
                   <tr key={v.id} className="hover:bg-purple-50 cursor-pointer">
                     <td>{v.num_venta}</td>
                     <td className="text-left font-semibold text-purple-800">
