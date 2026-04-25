@@ -34,47 +34,14 @@ function VentasLayout() {
               className="tabs tabs-border tabs-sm lg:tabs-xl pt-2 px-2 bg-white font-bold rounded-t-xl text-sm md:text-lg overflow-x-auto text-purple-700"
             >
               <NavLink
-                to="/inventario/productos"
+                to="/ventas/ventas"
                 className={({ isActive }) =>
                   `tab text-sm md:text-lg whitespace-nowrap ${
                     isActive ? "tab-active" : ""
                   }`
                 }
               >
-                Productos
-              </NavLink>
-
-              <NavLink
-                to="/inventario/categorias"
-                className={({ isActive }) =>
-                  `tab text-sm md:text-lg whitespace-nowrap ${
-                    isActive ? "tab-active" : ""
-                  }`
-                }
-              >
-                Categorías
-              </NavLink>
-
-              <NavLink
-                to="/inventario/marcas"
-                className={({ isActive }) =>
-                  `tab text-sm md:text-lg whitespace-nowrap ${
-                    isActive ? "tab-active" : ""
-                  }`
-                }
-              >
-                Marcas
-              </NavLink>
-
-              <NavLink
-                to="/inventario/unidades"
-                className={({ isActive }) =>
-                  `tab text-sm md:text-lg whitespace-nowrap ${
-                    isActive ? "tab-active" : ""
-                  }`
-                }
-              >
-                Unidades
+                Ventas
               </NavLink>
             </div>
           </div>

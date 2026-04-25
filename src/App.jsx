@@ -13,6 +13,7 @@ import InventarioUnidadesPage from "./components/inventario/InventarioUnidadesPa
 import PuntoVentaPage from "./pages/PuntoVentaPage";
 import ProveedoresLayout from "./pages/ProveedoresLayout";
 import VentasLayout from "./pages/VentasLayout";
+import VentasVentasPage from "./components/ventas/VentasVentasPage";
 
 function App() {
   return (
@@ -72,7 +73,10 @@ function App() {
                 <VentasLayout />
               </PrivateRoute>
             }
-          />
+          >
+            <Route index element={<VentasVentasPage />} />
+            <Route path="ventas" element={<VentasVentasPage />} />
+          </Route>
         </Routes>
       </BrowserRouter>
     </AuthProvider>
