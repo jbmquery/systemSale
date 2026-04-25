@@ -1,22 +1,43 @@
 // src/components/ventas/VentasVentasPage.jsx
 import { useState, useEffect } from "react";
-import { FaSearch, FaPlus } from "react-icons/fa";
-
-// ✅ RUTA CORREGIDA
+import { FaSearch } from "react-icons/fa";
 import ProductosModal from "../inventario/modales/ProductosModal";
 import { IoClose } from "react-icons/io5";
+
 import { db } from "../../firebase/config";
-import {
-  collection,
-  addDoc,
-  updateDoc,
-  deleteDoc,
-  doc,
-  onSnapshot,
-} from "firebase/firestore";
+import { collection, onSnapshot } from "firebase/firestore";
 
 function VentasVentasPage() {
   const [modalAbierto, setModalAbierto] = useState(false);
+  const [ventas, setVentas] = useState([]);
+
+  // 🔥 TRAER VENTAS EN TIEMPO REAL
+  useEffect(() => {
+    const unsubscribe = onSnapshot(collection(db, "ventas"), (snapshot) => {
+      const lista = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+
+      setVentas(lista);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  // 🗓️ FORMATEAR FECHA
+  const formatearFecha = (timestamp) => {
+    if (!timestamp) return "-";
+
+    const fecha = timestamp.toDate();
+    return fecha.toLocaleString("es-PE", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
 
   return (
     <>
@@ -77,26 +98,46 @@ function VentasVentasPage() {
           <table className="table text-sm w-full">
             <thead className="text-center bg-purple-50 text-purple-800">
               <tr>
-                <th>num_venta</th>
-                <th>cliente</th>
+                <th>N° Venta</th>
+                <th>Cliente</th>
                 <th>Subtotal</th>
-                <th>Fecha</th>
-                <th>tipo_comprobante</th>
-                <th>usuario</th>
-                <th>estado</th>
+                <th>Fecha de Pago</th>
+                <th>Tipo de Comprobante</th>
+                <th>Usuario</th>
+                <th>Estado</th>
               </tr>
             </thead>
 
             <tbody className="text-center">
-              <tr className="hover:bg-purple-50 cursor-pointer">
-                <td>-</td>
-                <td className="font-semibold text-purple-800 text-left">-</td>
-                <td>-</td>
-                <td>-</td>
-                <td>-</td>
-                <td>-</td>
-                <td>-</td>
-              </tr>
+              {ventas.length === 0 ? (
+                <tr>
+                  <td colSpan="7">No hay ventas</td>
+                </tr>
+              ) : (
+                ventas.map((v) => (
+                  <tr key={v.id} className="hover:bg-purple-50 cursor-pointer">
+                    <td>{v.num_venta}</td>
+                    <td className="text-left font-semibold text-purple-800">
+                      {/* No tienes cliente aún */}-
+                    </td>
+                    <td>S/ {v.subtotal?.toFixed(2)}</td>
+                    <td>{formatearFecha(v.fecha_venta)}</td>
+                    <td>{v.tipo_comprobante}</td>
+                    <td>caja1</td>
+                    <td>
+                      <span
+                        className={`px-2 py-1 rounded-full text-xs font-bold ${
+                          v.estado === "pagado"
+                            ? "bg-green-100 text-green-700"
+                            : "bg-red-100 text-red-600"
+                        }`}
+                      >
+                        {v.estado}
+                      </span>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
